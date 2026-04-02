@@ -115,4 +115,37 @@ export const api = {
       method: "PUT",
       body: JSON.stringify({ phase }),
     }),
+
+  getSummary: (sessionId: string) =>
+    request<SessionSummary>(`/sessions/${sessionId}/summary`),
 };
+
+export interface SummaryCard {
+  id: string;
+  content: string;
+  votesCount: number;
+}
+
+export interface SummaryColumn {
+  key: string;
+  label: string;
+  color: string;
+  cards: SummaryCard[];
+  totalCards: number;
+  totalVotes: number;
+}
+
+export interface SessionSummary {
+  sessionId: string;
+  title: string;
+  templateName: string;
+  currentPhase: string;
+  currentStatus: string;
+  createdAt: string;
+  columns: SummaryColumn[];
+  totals: {
+    cards: number;
+    votes: number;
+    participants: number;
+  };
+}

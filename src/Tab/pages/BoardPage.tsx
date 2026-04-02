@@ -3,6 +3,7 @@ import {
   api,
   getUserId,
   type Session,
+  type SessionSummary,
   type Card,
   type TemplateValue,
 } from "../lib/api-client";
@@ -144,23 +145,27 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         )}
       </div>
 
-      <div
-        className="board-columns"
-        style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
-      >
-        {columns.map((col) => (
-          <Column
-            key={col.value}
-            column={col}
-            cards={cards.filter((c) => c.columnKey === col.value)}
-            sessionId={sessionId}
-            collectPhase={session.currentPhase === "collect"}
-            votePhase={isVotePhase}
-            votedCardIds={votedCardIds}
-            onVoteToggle={handleVoteToggle}
-          />
-        ))}
-      </div>
+      {phase === "summary" ? (
+        <SummaryView sessionId={sessionId} columnCount={columns.length} />
+      ) : (
+        <div
+          className="board-columns"
+          style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
+        >
+          {columns.map((col) => (
+            <Column
+              key={col.value}
+              column={col}
+              cards={cards.filter((c) => c.columnKey === col.value)}
+              sessionId={sessionId}
+              collectPhase={session.currentPhase === "collect"}
+              votePhase={isVotePhase}
+              votedCardIds={votedCardIds}
+              onVoteToggle={handleVoteToggle}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -284,6 +289,69 @@ function CardItem({ card, votePhase, hasVoted, onVoteToggle }: CardItemProps) {
             {voting ? "..." : hasVoted ? "👎" : "👍"}
           </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+function SummaryView({
+  sessionId,
+  columnCount,
+}: {
+  sessionId: string;
+  columnCount: number;
+}) {
+  const [summary, setSummary] = useState<SessionSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.getSummary(sessionId).then(setSummary).finally(() => setLoading(false));
+  }, [sessionId]);
+
+  if (loading) return <p style={{ opacity: 0.5 }}>Loading results...</p>;
+  if (!summary) return <p>Failed to load summary</p>;
+
+  return (
+    <div className="summary-view">
+      <div className="summary-totals">
+        <span>{summary.totals.cards} cards</span>
+        <span className="summary-dot">&middot;</span>
+        <span>{summary.totals.votes} votes</span>
+        <span className="summary-dot">&middot;</span>
+        <span>{summary.totals.participants} participants</span>
+      </div>
+
+      <div
+        className="board-columns"
+        style={{ gridTemplateColumns: `repeat(${columnCount}, 1fr)` }}
+      >
+        {summary.columns.map((col) => (
+          <div key={col.key} className="column">
+            <div className="column-header" style={{ backgroundColor: col.color }}>
+              <h3>{col.label}</h3>
+              <span className="card-count">{col.totalVotes}</span>
+            </div>
+            <div className="column-cards">
+              {col.cards.length === 0 && (
+                <p style={{ opacity: 0.35, fontSize: "0.85rem", fontStyle: "italic" }}>
+                  No cards
+                </p>
+              )}
+              {col.cards.map((card) => (
+                <div key={card.id} className="card">
+                  <p>{card.content}</p>
+                  {card.votesCount > 0 && (
+                    <div className="card-footer">
+                      <span className="vote-count">
+                        +{card.votesCount}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
