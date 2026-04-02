@@ -1,15 +1,3 @@
-dist/index.d.mts
-dist/index.d.ts
-dist/index.js
-dist/index.js.map
-dist/index.mjs
-dist/index.mjs.map
-dist/client/index.html
-dist/client/assets/index-BlRT1-OX.css
-dist/client/assets/index-BM3T2j0B.js
-appPackage/color.png
-appPackage/manifest.json
-appPackage/outline.png
 env/.env.dev
 env/.env.local
 node_modules/.package-lock.json
