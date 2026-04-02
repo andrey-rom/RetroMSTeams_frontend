@@ -114,6 +114,16 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     }
   };
 
+  const handlePublish = async () => {
+    try {
+      await api.publishSummary(sessionId);
+      const updated = await api.getSession(sessionId);
+      setSession(updated);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Publish failed");
+    }
+  };
+
   return (
     <div className="board-page">
       <div className="board-header">
@@ -140,7 +150,18 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
             End Voting &rarr;
           </button>
         )}
-        {phase === "summary" && (
+        {phase === "summary" && isModerator && !session.reportMessageId && (
+          <button
+            className="phase-advance-btn publish-btn"
+            onClick={handlePublish}
+          >
+            Publish to Teams
+          </button>
+        )}
+        {phase === "summary" && session.reportMessageId && (
+          <span className="phase-done-label">Published</span>
+        )}
+        {phase === "summary" && !isModerator && !session.reportMessageId && (
           <span className="phase-done-label">Session complete</span>
         )}
       </div>

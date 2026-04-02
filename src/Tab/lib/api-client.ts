@@ -62,6 +62,7 @@ export interface Session {
   currentPhase: string;
   maxVotesPerUser: number;
   createdAt: string;
+  reportMessageId: string | null;
   templateType: Template;
 }
 
@@ -118,6 +119,12 @@ export const api = {
 
   getSummary: (sessionId: string) =>
     request<SessionSummary>(`/sessions/${sessionId}/summary`),
+
+  publishSummary: (sessionId: string) =>
+    request<{ sessionId: string; messageId: string; published: boolean }>(
+      `/sessions/${sessionId}/publish`,
+      { method: "POST" },
+    ),
 };
 
 export interface SummaryCard {

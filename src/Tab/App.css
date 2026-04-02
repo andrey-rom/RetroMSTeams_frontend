@@ -130,6 +130,14 @@ h1 {
   background: #43a047;
 }
 
+.publish-btn {
+  background: #6264A7;
+}
+
+.publish-btn:hover {
+  background: #525499;
+}
+
 .phase-done-label {
   margin-left: auto;
   font-size: 0.85rem;
