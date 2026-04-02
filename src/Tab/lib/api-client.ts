@@ -57,6 +57,7 @@ export interface Template {
 export interface Session {
   id: string;
   title: string;
+  creatorId: string;
   currentStatus: string;
   currentPhase: string;
   maxVotesPerUser: number;
@@ -94,5 +95,24 @@ export const api = {
     request<Card>(`/sessions/${sessionId}/cards`, {
       method: "POST",
       body: JSON.stringify({ columnKey, content }),
+    }),
+
+  getMyVotes: (sessionId: string) =>
+    request<{ cardIds: string[] }>(`/sessions/${sessionId}/my-votes`),
+
+  castVote: (cardId: string) =>
+    request<{ cardId: string; votesCount: number }>(`/cards/${cardId}/vote`, {
+      method: "POST",
+    }),
+
+  removeVote: (cardId: string) =>
+    request<{ cardId: string; votesCount: number }>(`/cards/${cardId}/vote`, {
+      method: "DELETE",
+    }),
+
+  advancePhase: (sessionId: string, phase: "collect" | "vote" | "summary") =>
+    request<Session>(`/sessions/${sessionId}/phase`, {
+      method: "PUT",
+      body: JSON.stringify({ phase }),
     }),
 };

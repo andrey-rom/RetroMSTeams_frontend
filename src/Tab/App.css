@@ -102,6 +102,41 @@ h1 {
   font-weight: 600;
 }
 
+.moderator-badge {
+  background: #e8a317;
+  color: #1a1a1a;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.phase-advance-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.15s;
+}
+
+.phase-advance-btn:hover {
+  background: #43a047;
+}
+
+.phase-done-label {
+  margin-left: auto;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  font-style: italic;
+}
+
 .board-columns {
   display: grid;
   gap: 0.75rem;
@@ -156,6 +191,43 @@ h1 {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+}
+
+.vote-count {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.vote-btn {
+  background: rgba(98, 100, 167, 0.3);
+  border: 1px solid #6264A7;
+  color: white;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+
+.vote-btn:hover {
+  background: rgba(98, 100, 167, 0.6);
+}
+
+.vote-btn.voted {
+  background: rgba(98, 100, 167, 0.7);
+  border-color: #8b8dd4;
+}
+
+.vote-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .card-form {

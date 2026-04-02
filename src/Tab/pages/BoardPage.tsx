@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   api,
+  getUserId,
   type Session,
   type Card,
   type TemplateValue,
@@ -15,18 +16,30 @@ interface BoardPageProps {
 export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
+  const [votedCardIds, setVotedCardIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
 
   const { on } = useSocket(sessionId);
 
+  const handleVoteToggle = useCallback((cardId: string, voted: boolean) => {
+    setVotedCardIds((prev) => {
+      const next = new Set(prev);
+      if (voted) next.add(cardId);
+      else next.delete(cardId);
+      return next;
+    });
+  }, []);
+
   const loadData = useCallback(async () => {
     try {
-      const [s, c] = await Promise.all([
+      const [s, c, v] = await Promise.all([
         api.getSession(sessionId),
         api.getCards(sessionId),
+        api.getMyVotes(sessionId),
       ]);
       setSession(s);
       setCards(c);
+      setVotedCardIds(new Set(v.cardIds));
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load");
     }
@@ -61,6 +74,16 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         prev ? { ...prev, currentPhase: phase } : prev,
       );
     });
+
+    on("vote:updated", (raw: unknown) => {
+      const { cardId, votesCount } = raw as {
+        cardId: string;
+        votesCount: number;
+      };
+      setCards((prev) =>
+        prev.map((c) => (c.id === cardId ? { ...c, votesCount } : c)),
+      );
+    });
   }, [on]);
 
   if (error) {
@@ -76,7 +99,19 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     return <p>Loading board...</p>;
   }
 
-  const columns = session.templateType.values;
+  const columns = session.templateType?.values ?? [];
+  const phase = session.currentPhase;
+  const isVotePhase = phase === "vote";
+  const isModerator = session.creatorId === getUserId();
+
+  const handleAdvancePhase = async (next: "vote" | "summary") => {
+    try {
+      const updated = await api.advancePhase(sessionId, next);
+      setSession(updated);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Phase change failed");
+    }
+  };
 
   return (
     <div className="board-page">
@@ -85,7 +120,28 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
           &larr; Back
         </button>
         <h2>{session.title}</h2>
-        <span className="phase-badge">{session.currentPhase}</span>
+        <span className="phase-badge">{phase}</span>
+        {isModerator && <span className="moderator-badge">Moderator</span>}
+
+        {isModerator && phase === "collect" && (
+          <button
+            className="phase-advance-btn"
+            onClick={() => handleAdvancePhase("vote")}
+          >
+            Start Voting &rarr;
+          </button>
+        )}
+        {isModerator && phase === "vote" && (
+          <button
+            className="phase-advance-btn"
+            onClick={() => handleAdvancePhase("summary")}
+          >
+            End Voting &rarr;
+          </button>
+        )}
+        {phase === "summary" && (
+          <span className="phase-done-label">Session complete</span>
+        )}
       </div>
 
       <div
@@ -98,7 +154,10 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
             column={col}
             cards={cards.filter((c) => c.columnKey === col.value)}
             sessionId={sessionId}
-            disabled={session.currentPhase !== "collect"}
+            collectPhase={session.currentPhase === "collect"}
+            votePhase={isVotePhase}
+            votedCardIds={votedCardIds}
+            onVoteToggle={handleVoteToggle}
           />
         ))}
       </div>
@@ -110,14 +169,20 @@ interface ColumnProps {
   column: TemplateValue;
   cards: Card[];
   sessionId: string;
-  disabled: boolean;
+  collectPhase: boolean;
+  votePhase: boolean;
+  votedCardIds: Set<string>;
+  onVoteToggle: (cardId: string, voted: boolean) => void;
 }
 
 function Column({
   column,
   cards,
   sessionId,
-  disabled,
+  collectPhase,
+  votePhase,
+  votedCardIds,
+  onVoteToggle,
 }: ColumnProps) {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -146,13 +211,17 @@ function Column({
 
       <div className="column-cards">
         {cards.map((card) => (
-          <div key={card.id} className="card">
-            <p>{card.content}</p>
-          </div>
+          <CardItem
+            key={card.id}
+            card={card}
+            votePhase={votePhase}
+            hasVoted={votedCardIds.has(card.id)}
+            onVoteToggle={onVoteToggle}
+          />
         ))}
       </div>
 
-      {!disabled && (
+      {collectPhase && (
         <form className="card-form" onSubmit={handleSubmit}>
           <textarea
             value={text}
@@ -166,6 +235,56 @@ function Column({
           </button>
         </form>
       )}
+    </div>
+  );
+}
+
+interface CardItemProps {
+  card: Card;
+  votePhase: boolean;
+  hasVoted: boolean;
+  onVoteToggle: (cardId: string, voted: boolean) => void;
+}
+
+function CardItem({ card, votePhase, hasVoted, onVoteToggle }: CardItemProps) {
+  const [voting, setVoting] = useState(false);
+
+  const handleToggleVote = async () => {
+    if (voting) return;
+    setVoting(true);
+    try {
+      if (hasVoted) {
+        await api.removeVote(card.id);
+        onVoteToggle(card.id, false);
+      } else {
+        await api.castVote(card.id);
+        onVoteToggle(card.id, true);
+      }
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Vote failed");
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  return (
+    <div className="card">
+      <p>{card.content}</p>
+      <div className="card-footer">
+        {card.votesCount > 0 && (
+          <span className="vote-count">{card.votesCount} vote{card.votesCount !== 1 ? "s" : ""}</span>
+        )}
+        {votePhase && (
+          <button
+            className={`vote-btn${hasVoted ? " voted" : ""}`}
+            onClick={handleToggleVote}
+            disabled={voting}
+            title={hasVoted ? "Remove vote" : "Vote"}
+          >
+            {voting ? "..." : hasVoted ? "👎" : "👍"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
