@@ -1,0 +1,17 @@
+# Azure zip deploy — exclude from site root (see m365agents.yml azureAppService/zipDeploy)
+.azure/
+.git/
+.github/
+.vscode/
+env/
+*.md
+*.log
+npm-debug.log*
+src/
+tsconfig*.json
+tsup.config.*
+vite.config.*
+nodemon.json
+m365agents*.yml
+appPackage/build/
+node_modules/.cache/

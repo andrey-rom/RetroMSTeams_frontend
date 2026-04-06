@@ -21,6 +21,19 @@ const app = new App({
 
 app.tab("home", path.join(__dirname, "./client"));
 
+/** Azure App Service (iisnode) sets PORT to a named pipe string; Linux uses a numeric port. */
+function resolveListenPort(): number | string {
+  const p = process.env.PORT;
+  if (p === undefined || p === "") {
+    return 3978;
+  }
+  const n = Number(p);
+  if (!Number.isNaN(n) && String(n) === p.trim()) {
+    return n;
+  }
+  return p;
+}
+
 (async () => {
-  await app.start(+(process.env.PORT || 3978));
+  await app.start(resolveListenPort());
 })();

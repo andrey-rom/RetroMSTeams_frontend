@@ -16491,3 +16491,8 @@ node_modules/tsyringe/node_modules/tslib/test/validateModuleExportsMatchCommonJS
 appPackage/build/appPackage.dev.zip
 appPackage/build/manifest.dev.json
 env/.env.dev.user
+dist/index.js
+dist/index.js.map
+dist/index.mjs
+dist/index.mjs.map
+dist/client/index.html

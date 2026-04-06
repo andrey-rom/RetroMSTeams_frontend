@@ -18,8 +18,19 @@ const app = new App({
   plugins
 });
 app.tab("home", path.join(__dirname, "./client"));
+function resolveListenPort() {
+  const p = process.env.PORT;
+  if (p === void 0 || p === "") {
+    return 3978;
+  }
+  const n = Number(p);
+  if (!Number.isNaN(n) && String(n) === p.trim()) {
+    return n;
+  }
+  return p;
+}
 (async () => {
-  await app.start(+(process.env.PORT || 3978));
+  await app.start(resolveListenPort());
 })();
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
