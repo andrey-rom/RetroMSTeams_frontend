@@ -8,6 +8,7 @@ import {
   type TemplateValue,
 } from "../lib/api-client";
 import { useSocket } from "../hooks/useSocket";
+import CountdownTimer from "../components/CountdownTimer";
 
 interface BoardPageProps {
   sessionId: string;
@@ -19,6 +20,9 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   const [cards, setCards] = useState<Card[]>([]);
   const [votedCardIds, setVotedCardIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
+  const [timerExpired, setTimerExpired] = useState(false);
+  const [graceActive, setGraceActive] = useState(false);
+  const [graceUsedColumns, setGraceUsedColumns] = useState<Set<string>>(new Set());
 
   const { on } = useSocket(sessionId);
 
@@ -33,14 +37,19 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
 
   const loadData = useCallback(async () => {
     try {
-      const [s, c, v] = await Promise.all([
+      const [s, c, v, g] = await Promise.all([
         api.getSession(sessionId),
         api.getCards(sessionId),
         api.getMyVotes(sessionId),
+        api.getGraceStatus(sessionId),
       ]);
       setSession(s);
       setCards(c);
       setVotedCardIds(new Set(v.cardIds));
+      if (g.graceActive) {
+        setGraceActive(true);
+        setGraceUsedColumns(new Set(g.usedColumns));
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load");
     }
@@ -72,8 +81,11 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     on("phase:changed", (raw: unknown) => {
       const { phase } = raw as { phase: string };
       setSession((prev) =>
-        prev ? { ...prev, currentPhase: phase } : prev,
+        prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev,
       );
+      setTimerExpired(false);
+      setGraceActive(false);
+      setGraceUsedColumns(new Set());
     });
 
     on("vote:updated", (raw: unknown) => {
@@ -84,6 +96,30 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       setCards((prev) =>
         prev.map((c) => (c.id === cardId ? { ...c, votesCount } : c)),
       );
+    });
+
+    on("timer:started", (raw: unknown) => {
+      const { timerExpiresAt } = raw as { timerExpiresAt: string };
+      setSession((prev) =>
+        prev ? { ...prev, timerExpiresAt } : prev,
+      );
+      setTimerExpired(false);
+    });
+
+    on("timer:expired", () => {
+      setSession((prev) =>
+        prev ? { ...prev, timerExpiresAt: null } : prev,
+      );
+      setTimerExpired(true);
+    });
+
+    on("collect:grace", (raw: unknown) => {
+      const { collectGraceAt } = raw as { collectGraceAt: string };
+      setSession((prev) =>
+        prev ? { ...prev, timerExpiresAt: null, collectGraceAt } : prev,
+      );
+      setGraceActive(true);
+      setGraceUsedColumns(new Set());
     });
   }, [on]);
 
@@ -105,10 +141,24 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   const isVotePhase = phase === "vote";
   const isModerator = session.creatorId === getUserId();
 
+  const collectTimerConfigured = !!session.collectTimerSeconds;
+  const collectTimerNotStarted = collectTimerConfigured && !session.timerExpiresAt && !session.collectGraceAt;
+
+  const handleStartCollect = async () => {
+    try {
+      await api.startCollect(sessionId);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to start");
+    }
+  };
+
   const handleAdvancePhase = async (next: "vote" | "summary") => {
     try {
       const updated = await api.advancePhase(sessionId, next);
       setSession(updated);
+      setTimerExpired(false);
+      setGraceActive(false);
+      setGraceUsedColumns(new Set());
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Phase change failed");
     }
@@ -124,6 +174,12 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     }
   };
 
+  const handleDismissExpired = () => setTimerExpired(false);
+
+  const onGraceCardAdded = (columnKey: string) => {
+    setGraceUsedColumns((prev) => new Set(prev).add(columnKey));
+  };
+
   return (
     <div className="board-page">
       <div className="board-header">
@@ -132,9 +188,18 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         </button>
         <h2>{session.title}</h2>
         <span className="phase-badge">{phase}</span>
+        <CountdownTimer expiresAt={session.timerExpiresAt} />
         {isModerator && <span className="moderator-badge">Moderator</span>}
 
-        {isModerator && phase === "collect" && (
+        {isModerator && phase === "collect" && collectTimerNotStarted && (
+          <button
+            className="phase-advance-btn start-retro-btn"
+            onClick={handleStartCollect}
+          >
+            Start Retrospective
+          </button>
+        )}
+        {isModerator && phase === "collect" && !collectTimerNotStarted && (
           <button
             className="phase-advance-btn"
             onClick={() => handleAdvancePhase("vote")}
@@ -166,6 +231,27 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         )}
       </div>
 
+      {!isModerator && phase === "collect" && collectTimerNotStarted && (
+        <div className="waiting-banner">
+          Waiting for moderator to start the retrospective...
+        </div>
+      )}
+
+      {graceActive && phase === "collect" && (
+        <div className="timer-expired-banner">
+          <span>Time is up! You may add one last card per column.</span>
+        </div>
+      )}
+
+      {timerExpired && phase === "vote" && (
+        <div className="timer-expired-banner">
+          <span>{isModerator ? "Vote timer is up! End voting when ready." : "Vote timer is up! Waiting for moderator."}</span>
+          <button className="timer-dismiss-btn" onClick={handleDismissExpired}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {phase === "summary" ? (
         <SummaryView sessionId={sessionId} columnCount={columns.length} />
       ) : (
@@ -179,10 +265,13 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
               column={col}
               cards={cards.filter((c) => c.columnKey === col.value)}
               sessionId={sessionId}
-              collectPhase={session.currentPhase === "collect"}
+              collectPhase={phase === "collect"}
               votePhase={isVotePhase}
               votedCardIds={votedCardIds}
               onVoteToggle={handleVoteToggle}
+              graceActive={graceActive}
+              graceUsed={graceUsedColumns.has(col.value)}
+              onGraceCardAdded={onGraceCardAdded}
             />
           ))}
         </div>
@@ -199,6 +288,9 @@ interface ColumnProps {
   votePhase: boolean;
   votedCardIds: Set<string>;
   onVoteToggle: (cardId: string, voted: boolean) => void;
+  graceActive: boolean;
+  graceUsed: boolean;
+  onGraceCardAdded: (columnKey: string) => void;
 }
 
 function Column({
@@ -209,18 +301,26 @@ function Column({
   votePhase,
   votedCardIds,
   onVoteToggle,
+  graceActive,
+  graceUsed,
+  onGraceCardAdded,
 }: ColumnProps) {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const canAddCard = collectPhase && (!graceActive || !graceUsed);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim() || submitting) return;
+    if (!text.trim() || submitting || !canAddCard) return;
 
     setSubmitting(true);
     try {
       await api.createCard(sessionId, column.value, text.trim());
       setText("");
+      if (graceActive) {
+        onGraceCardAdded(column.value);
+      }
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to add card");
     } finally {
@@ -247,12 +347,12 @@ function Column({
         ))}
       </div>
 
-      {collectPhase && (
+      {canAddCard && (
         <form className="card-form" onSubmit={handleSubmit}>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={`Add a "${column.label}" card...`}
+            placeholder={graceActive ? `Last card for "${column.label}"...` : `Add a "${column.label}" card...`}
             maxLength={500}
             rows={2}
           />
@@ -260,6 +360,10 @@ function Column({
             {submitting ? "..." : "Add"}
           </button>
         </form>
+      )}
+
+      {collectPhase && graceActive && graceUsed && (
+        <p className="grace-done-label">Last card added</p>
       )}
     </div>
   );

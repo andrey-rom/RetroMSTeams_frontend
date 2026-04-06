@@ -61,6 +61,10 @@ export interface Session {
   currentStatus: string;
   currentPhase: string;
   maxVotesPerUser: number;
+  collectTimerSeconds: number | null;
+  voteTimerSeconds: number | null;
+  timerExpiresAt: string | null;
+  collectGraceAt: string | null;
   createdAt: string;
   reportMessageId: string | null;
   templateType: Template;
@@ -79,10 +83,14 @@ export interface Card {
 export const api = {
   getTemplates: () => request<Template[]>("/templates"),
 
-  createSession: (title: string, templateTypeId: string) =>
+  createSession: (
+    title: string,
+    templateTypeId: string,
+    opts?: { collectTimerSeconds?: number; voteTimerSeconds?: number },
+  ) =>
     request<Session>("/sessions", {
       method: "POST",
-      body: JSON.stringify({ title, templateTypeId }),
+      body: JSON.stringify({ title, templateTypeId, ...opts }),
     }),
 
   getSession: (id: string) => request<Session>(`/sessions/${id}`),
@@ -109,6 +117,14 @@ export const api = {
   removeVote: (cardId: string) =>
     request<{ cardId: string; votesCount: number }>(`/cards/${cardId}/vote`, {
       method: "DELETE",
+    }),
+
+  getGraceStatus: (sessionId: string) =>
+    request<{ graceActive: boolean; usedColumns: string[] }>(`/sessions/${sessionId}/grace-status`),
+
+  startCollect: (sessionId: string) =>
+    request<{ started: boolean }>(`/sessions/${sessionId}/start`, {
+      method: "POST",
     }),
 
   advancePhase: (sessionId: string, phase: "collect" | "vote" | "summary") =>
