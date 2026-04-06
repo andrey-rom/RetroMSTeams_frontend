@@ -61,6 +61,24 @@ h1 {
   margin: 0.25rem 0;
 }
 
+.auth-error-card {
+  max-width: 32rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-error-card h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.auth-error-card p {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
 /* ── Board layout ───────────────────────────────────── */
 
 .board-page {

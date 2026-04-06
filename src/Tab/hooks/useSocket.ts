@@ -1,8 +1,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import { io, type Socket } from "socket.io-client";
-import { getUserId } from "../lib/api-client";
+import { getBackendOrigin, getSocketAuth } from "../lib/auth";
 
-const SOCKET_URL = "http://localhost:3000";
+const SOCKET_URL = getBackendOrigin();
 
 type EventHandler = (...args: unknown[]) => void;
 
@@ -13,24 +13,33 @@ export function useSocket(sessionId: string | null) {
   useEffect(() => {
     if (!sessionId) return;
 
-    const socket = io(SOCKET_URL, {
-      auth: { userId: getUserId() },
-      transports: ["websocket", "polling"],
-    });
+    let disposed = false;
+    let socket: Socket | null = null;
 
-    socketRef.current = socket;
+    void (async () => {
+      const auth = await getSocketAuth();
+      if (disposed) return;
 
-    socket.on("connect", () => {
-      socket.emit("session:join", sessionId);
-    });
+      socket = io(SOCKET_URL, {
+        auth,
+        transports: ["websocket", "polling"],
+      });
 
-    handlersRef.current.forEach((handler, event) => {
-      socket.on(event, handler);
-    });
+      socketRef.current = socket;
+
+      socket.on("connect", () => {
+        socket?.emit("session:join", sessionId);
+      });
+
+      handlersRef.current.forEach((handler, event) => {
+        socket?.on(event, handler);
+      });
+    })();
 
     return () => {
-      socket.emit("session:leave", sessionId);
-      socket.disconnect();
+      disposed = true;
+      socket?.emit("session:leave", sessionId);
+      socket?.disconnect();
       socketRef.current = null;
     };
   }, [sessionId]);

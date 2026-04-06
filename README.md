@@ -65,3 +65,17 @@ Following documentation will help you to extend the Basic Tab template.
 - [Publish the app to your organization or the Microsoft app store](https://learn.microsoft.com/microsoftteams/platform/toolkit/publish)
 - [Enable the app for multi-tenant](https://aka.ms/m365-agent-multi-tenancy-entra-app)
 - [Preview the app on mobile clients](https://aka.ms/teamsfx-mobile)
+
+## Backend auth integration
+
+This frontend now authenticates with the backend in two stages when running inside Teams:
+
+1. Request a Teams SSO token with `microsoftTeams.authentication.getAuthToken()`.
+2. Exchange that token with `POST /api/auth/teams` on the backend.
+3. Use the returned backend JWT for REST calls and Socket.IO connections.
+
+When running outside Teams, the frontend falls back to a local development identity so the app can still run without a Teams host.
+
+Optional frontend env variable:
+
+- `VITE_BACKEND_ORIGIN=http://localhost:3000`

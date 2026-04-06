@@ -1,32 +1,26 @@
-const API_BASE = "http://localhost:3000/api";
+import {
+  getApiBase,
+  getRequestHeaders,
+  getUserDisplayName,
+  getUserId,
+  initializeAuth,
+  setUserDisplayName,
+} from "./auth";
 
-export function getUserId(): string {
-  let id = localStorage.getItem("retrobot-user-id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("retrobot-user-id", id);
-  }
-  return id;
-}
+const API_BASE = getApiBase();
 
-export function getUserDisplayName(): string {
-  return localStorage.getItem("retrobot-user-name") || "Anonymous";
-}
-
-export function setUserDisplayName(name: string): void {
-  localStorage.setItem("retrobot-user-name", name);
-}
+export { getUserDisplayName, getUserId, setUserDisplayName };
 
 async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  await initializeAuth();
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      "x-user-id": getUserId(),
-      ...options.headers,
+      ...(await getRequestHeaders(options.headers)),
     },
   });
 
