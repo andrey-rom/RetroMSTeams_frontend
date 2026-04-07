@@ -1,4 +1,8 @@
-const API_BASE = "http://localhost:3000/api";
+/**
+ * API base URL from environment variables (VITE_API_URL)
+ * Falls back to localhost for local development if not specified
+ */
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export function getUserId(): string {
   let id = localStorage.getItem("retrobot-user-id");

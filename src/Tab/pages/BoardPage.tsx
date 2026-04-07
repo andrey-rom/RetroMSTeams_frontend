@@ -24,7 +24,7 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   const [graceActive, setGraceActive] = useState(false);
   const [graceUsedColumns, setGraceUsedColumns] = useState<Set<string>>(new Set());
 
-  const { on } = useSocket(sessionId);
+  const { on, off } = useSocket(sessionId);
 
   const handleVoteToggle = useCallback((cardId: string, voted: boolean) => {
     setVotedCardIds((prev) => {
@@ -60,25 +60,26 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   }, [loadData]);
 
   useEffect(() => {
-    on("card:created", (raw: unknown) => {
+    // Define handlers as separate named functions so we can properly clean them up
+    const handleCardCreated = (raw: unknown) => {
       const card = raw as Card;
       setCards((prev) => {
         if (prev.some((c) => c.id === card.id)) return prev;
         return [...prev, card];
       });
-    });
+    };
 
-    on("card:updated", (raw: unknown) => {
+    const handleCardUpdated = (raw: unknown) => {
       const card = raw as Card;
       setCards((prev) => prev.map((c) => (c.id === card.id ? card : c)));
-    });
+    };
 
-    on("card:deleted", (raw: unknown) => {
+    const handleCardDeleted = (raw: unknown) => {
       const { cardId } = raw as { cardId: string };
       setCards((prev) => prev.filter((c) => c.id !== cardId));
-    });
+    };
 
-    on("phase:changed", (raw: unknown) => {
+    const handlePhaseChanged = (raw: unknown) => {
       const { phase } = raw as { phase: string };
       setSession((prev) =>
         prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev,
@@ -86,9 +87,9 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       setTimerExpired(false);
       setGraceActive(false);
       setGraceUsedColumns(new Set());
-    });
+    };
 
-    on("vote:updated", (raw: unknown) => {
+    const handleVoteUpdated = (raw: unknown) => {
       const { cardId, votesCount } = raw as {
         cardId: string;
         votesCount: number;
@@ -96,32 +97,55 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       setCards((prev) =>
         prev.map((c) => (c.id === cardId ? { ...c, votesCount } : c)),
       );
-    });
+    };
 
-    on("timer:started", (raw: unknown) => {
+    const handleTimerStarted = (raw: unknown) => {
       const { timerExpiresAt } = raw as { timerExpiresAt: string };
       setSession((prev) =>
         prev ? { ...prev, timerExpiresAt } : prev,
       );
       setTimerExpired(false);
-    });
+    };
 
-    on("timer:expired", () => {
+    const handleTimerExpired = () => {
       setSession((prev) =>
         prev ? { ...prev, timerExpiresAt: null } : prev,
       );
       setTimerExpired(true);
-    });
+    };
 
-    on("collect:grace", (raw: unknown) => {
+    const handleCollectGrace = (raw: unknown) => {
       const { collectGraceAt } = raw as { collectGraceAt: string };
       setSession((prev) =>
         prev ? { ...prev, timerExpiresAt: null, collectGraceAt } : prev,
       );
       setGraceActive(true);
       setGraceUsedColumns(new Set());
-    });
-  }, [on]);
+    };
+
+    // Register all handlers
+    on("card:created", handleCardCreated);
+    on("card:updated", handleCardUpdated);
+    on("card:deleted", handleCardDeleted);
+    on("phase:changed", handlePhaseChanged);
+    on("vote:updated", handleVoteUpdated);
+    on("timer:started", handleTimerStarted);
+    on("timer:expired", handleTimerExpired);
+    on("collect:grace", handleCollectGrace);
+
+    // Return cleanup function to unregister all handlers when component unmounts
+    // This prevents memory leaks and duplicate event processing
+    return () => {
+      off("card:created");
+      off("card:updated");
+      off("card:deleted");
+      off("phase:changed");
+      off("vote:updated");
+      off("timer:started");
+      off("timer:expired");
+      off("collect:grace");
+    };
+  }, [on, off]);
 
   if (error) {
     return (
