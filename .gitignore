@@ -2,7 +2,8 @@ env/.env.dev
 env/.env.local
 .localConfigs
 certs/*
-dist/*
+# dist/ is not listed here: Teams Toolkit / Azure zip deploy often skips gitignored files, so dist/ never reached Azure.
+# After `npm run build`, redeploy. Optionally add dist/ to your global gitignore locally if you do not want it in `git status`.
 node_modules/.package-lock.json
 node_modules/.bin/acorn
 node_modules/.bin/baseline-browser-mapping
