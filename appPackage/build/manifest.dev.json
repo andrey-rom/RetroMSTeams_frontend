@@ -1,0 +1,48 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.25/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.25",
+    "version": "1.0.0",
+    "id": "4c6d763d-54fd-4d0b-b663-e2d7e1567d94",
+    "developer": {
+        "name": "My App, Inc.",
+        "websiteUrl": "https://www.example.com",
+        "privacyUrl": "https://www.example.com/privacy",
+        "termsOfUseUrl": "https://www.example.com/termsofuse"
+    },
+    "name": {
+        "short": "RetroMSTeamsdev",
+        "full": "Full name for RetroMSTeams"
+    },
+    "description": {
+        "short": "Short description of RetroMSTeams",
+        "full": "Full description of RetroMSTeams"
+    },
+    "icons": {
+        "outline": "outline.png",
+        "color": "color.png"
+    },
+    "accentColor": "#FFFFFF",
+    "staticTabs": [
+        {
+            "entityId": "index0",
+            "name": "Home",
+            "contentUrl": "https://tabc2ac8b.azurewebsites.net/tabs/home",
+            "websiteUrl": "https://tabc2ac8b.azurewebsites.net/tabs/home",
+            "scopes": [
+                "personal",
+                "groupChat",
+                "team"
+            ]
+        }
+    ],
+    "bots": [],
+    "composeExtensions": [],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "validDomains": [
+        "tabc2ac8b.azurewebsites.net"
+    ],
+    "supportsChannelFeatures": "tier1"
+}
