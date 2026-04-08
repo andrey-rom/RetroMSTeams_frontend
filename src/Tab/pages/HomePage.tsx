@@ -10,6 +10,8 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [selected, setSelected] = useState<Template | null>(null);
   const [title, setTitle] = useState("");
+  const [collectTimer, setCollectTimer] = useState("");
+  const [voteTimer, setVoteTimer] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
 
@@ -26,7 +28,12 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
 
     setCreating(true);
     try {
-      const session = await api.createSession(title.trim(), selected.id);
+      const collectSec = collectTimer ? parseInt(collectTimer, 10) : undefined;
+      const voteSec = voteTimer ? parseInt(voteTimer, 10) : undefined;
+      const session = await api.createSession(title.trim(), selected.id, {
+        collectTimerSeconds: collectSec && collectSec >= 30 ? collectSec : undefined,
+        voteTimerSeconds: voteSec && voteSec >= 30 ? voteSec : undefined,
+      });
       onSessionOpen(session.id);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to create");
@@ -77,6 +84,30 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
             maxLength={200}
             autoFocus
           />
+          <div className="timer-config-row">
+            <div className="timer-config-field">
+              <label>Collect timer (sec)</label>
+              <input
+                type="number"
+                placeholder="off"
+                min={30}
+                max={3600}
+                value={collectTimer}
+                onChange={(e) => setCollectTimer(e.target.value)}
+              />
+            </div>
+            <div className="timer-config-field">
+              <label>Vote timer (sec)</label>
+              <input
+                type="number"
+                placeholder="off"
+                min={30}
+                max={3600}
+                value={voteTimer}
+                onChange={(e) => setVoteTimer(e.target.value)}
+              />
+            </div>
+          </div>
           <button type="submit" disabled={!title.trim() || creating}>
             {creating ? "Creating..." : "Start Retrospective"}
           </button>
