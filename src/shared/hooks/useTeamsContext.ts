@@ -4,9 +4,9 @@ import { getMockContext } from "../lib/teams-context";
 
 interface TeamsContextState {
   context: microsoftTeams.app.Context | null;
+  error: null | string;
   isInTeams: boolean;
   isLoading: boolean;
-  error: string | null;
 }
 
 /**
@@ -19,9 +19,9 @@ interface TeamsContextState {
 export function useTeamsContext(): TeamsContextState {
   const [state, setState] = useState<TeamsContextState>({
     context: null,
+    error: null,
     isInTeams: false,
     isLoading: true,
-    error: null,
   });
 
   useEffect(() => {
@@ -30,28 +30,33 @@ export function useTeamsContext(): TeamsContextState {
     microsoftTeams.app
       .initialize()
       .then(() => {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
+
         return microsoftTeams.app.getContext();
       })
       .then((ctx) => {
-        if (cancelled || !ctx) return;
+        if (cancelled || !ctx) {
+          return;
+        }
         setState({
           context: ctx,
+          error: null,
           isInTeams: true,
           isLoading: false,
-          error: null,
         });
       })
       .catch(() => {
-        if (cancelled) return;
-        console.info(
-          "[useTeamsContext] Teams SDK unavailable — using mock context for local dev",
-        );
+        if (cancelled) {
+          return;
+        }
+        console.info("[useTeamsContext] Teams SDK unavailable — using mock context for local dev");
         setState({
           context: getMockContext(),
+          error: null,
           isInTeams: false,
           isLoading: false,
-          error: null,
         });
       });
 

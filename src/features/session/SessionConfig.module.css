@@ -1,0 +1,288 @@
+.btn {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacingS);
+  padding: 8px 20px;
+  border-radius: var(--borderRadiusS);
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btnPrimary {
+  background: var(--colorBrandBackground);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: var(--colorBrandBackgroundHover);
+}
+
+.btnSubtle {
+  background: transparent;
+  color: var(--colorNeutralForeground2);
+  border: 1px solid var(--colorNeutralStroke1);
+}
+
+.btnSubtle:hover {
+  background: var(--colorNeutralBackgroundHover);
+}
+
+.configContent {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: var(--spacingXXXL) var(--spacingXL);
+}
+
+.configForm {
+  width: 100%;
+  max-width: 640px;
+}
+
+.configHero {
+  text-align: center;
+  margin-bottom: var(--spacingXXXL);
+}
+
+.configHeroIcon {
+  width: 64px;
+  height: 64px;
+  background: rgba(91, 95, 199, 0.15);
+  border-radius: var(--borderRadiusL);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacingL);
+  font-size: 28px;
+  color: var(--colorBrandForegroundLink);
+}
+
+.configHero h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: var(--spacingS);
+}
+
+.configHero p {
+  color: var(--colorNeutralForeground3);
+  font-size: 16px;
+}
+
+.formSection {
+  margin-bottom: var(--spacingXXL);
+}
+
+.formLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--colorNeutralForeground2);
+  margin-bottom: var(--spacingS);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formInput {
+  width: 100%;
+  background: var(--colorNeutralBackground1);
+  border: 1px solid var(--colorNeutralStroke1);
+  border-radius: var(--borderRadiusS);
+  padding: 10px var(--spacingL);
+  color: var(--colorNeutralForeground1);
+  font-size: 16px;
+  outline: none;
+}
+
+.formInput:focus {
+  border-color: var(--colorBrandBackground);
+}
+
+.formHint {
+  font-size: 12px;
+  color: var(--colorNeutralForeground4);
+  margin-top: var(--spacingXS);
+}
+
+.templateGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacingM);
+}
+
+.templateCard {
+  position: relative;
+  background: var(--colorNeutralBackground1);
+  border: 2px solid var(--colorNeutralStroke2);
+  border-radius: var(--borderRadiusM);
+  padding: var(--spacingL);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.templateCard:hover {
+  border-color: var(--colorNeutralStroke1);
+  background: var(--colorNeutralBackgroundHover);
+}
+
+.templateCardSelected {
+  border-color: var(--colorBrandBackground);
+  background: rgba(91, 95, 199, 0.08);
+}
+
+.templateCheck {
+  display: none;
+  width: 20px;
+  height: 20px;
+  background: var(--colorBrandBackground);
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  color: #fff;
+}
+
+.templateCardSelected .templateCheck {
+  display: flex;
+}
+
+.templateIcon {
+  font-size: 32px;
+  margin-bottom: var(--spacingS);
+}
+
+.templateName {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--spacingXS);
+}
+
+.templateColumns {
+  font-size: 12px;
+  color: var(--colorNeutralForeground3);
+  line-height: 1.4;
+}
+
+.previewPanel {
+  background: var(--colorNeutralBackground1);
+  border: 1px solid var(--colorNeutralStroke2);
+  border-radius: var(--borderRadiusM);
+  padding: var(--spacingL);
+  margin-top: var(--spacingXL);
+}
+
+.previewTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--colorNeutralForeground3);
+  margin-bottom: var(--spacingM);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.previewColumns {
+  display: flex;
+  gap: var(--spacingS);
+}
+
+.previewCol {
+  flex: 1;
+  padding: var(--spacingS);
+  border-radius: var(--borderRadiusS);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.green { background: rgba(94, 199, 90, 0.1); color: #5ec75a; border: 1px solid rgba(94, 199, 90, 0.2); }
+.red { background: rgba(231, 76, 76, 0.1); color: #e74c4c; border: 1px solid rgba(231, 76, 76, 0.2); }
+.blue { background: rgba(71, 158, 245, 0.1); color: #479ef5; border: 1px solid rgba(71, 158, 245, 0.2); }
+.yellow { background: rgba(253, 227, 0, 0.1); color: #fde300; border: 1px solid rgba(253, 227, 0, 0.2); }
+
+.timerSettings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacingM);
+}
+
+.timerSetting {
+  background: var(--colorNeutralBackground1);
+  border: 1px solid var(--colorNeutralStroke2);
+  border-radius: var(--borderRadiusM);
+  padding: var(--spacingL);
+}
+
+.timerSettingLabel {
+  font-size: 12px;
+  color: var(--colorNeutralForeground3);
+  margin-bottom: var(--spacingS);
+  display: flex;
+  align-items: center;
+  gap: var(--spacingXS);
+}
+
+.timerInputRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacingS);
+}
+
+.timerInput {
+  width: 80px;
+  background: var(--colorNeutralBackground2);
+  border: 1px solid var(--colorNeutralStroke1);
+  border-radius: var(--borderRadiusS);
+  padding: 8px 12px;
+  color: var(--colorNeutralForeground1);
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+
+.timerInput:focus {
+  border-color: var(--colorBrandBackground);
+}
+
+.timerUnit {
+  font-size: 14px;
+  color: var(--colorNeutralForeground3);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--spacingM);
+  justify-content: center;
+  padding-top: var(--spacingXXL);
+  border-top: 1px solid var(--colorNeutralStroke2);
+  margin-top: var(--spacingXXL);
+}
+
+.btnLg {
+  padding: 12px 32px;
+  font-size: 16px;
+  border-radius: var(--borderRadiusM);
+}
+
+.errorText {
+  color: #e74c4c;
+  margin-top: var(--spacingS);
+}
+
+@media (max-width: 768px) {
+  .configContent { padding: var(--spacingXL) var(--spacingL); }
+  .templateGrid { grid-template-columns: 1fr; }
+  .timerSettings { grid-template-columns: 1fr; }
+  .formActions { flex-direction: column; }
+  .btnLg { width: 100%; justify-content: center; }
+}

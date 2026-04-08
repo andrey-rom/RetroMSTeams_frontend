@@ -1,0 +1,29 @@
+:root {
+  --colorNeutralBackground1: #1f1f1f;
+  --colorNeutralBackground2: #292929;
+  --colorNeutralBackground3: #141414;
+  --colorNeutralBackgroundHover: #383838;
+  --colorNeutralForeground1: #ffffff;
+  --colorNeutralForeground2: #d6d6d6;
+  --colorNeutralForeground3: #adadad;
+  --colorNeutralForeground4: #999999;
+  --colorNeutralStroke1: #404040;
+  --colorNeutralStroke2: #383838;
+  --colorBrandBackground: #5b5fc7;
+  --colorBrandBackgroundHover: #7179d2;
+  --colorBrandForegroundLink: #96a0f7;
+  --colorPaletteGreenForeground1: #5ec75a;
+  --colorPaletteRedForeground1: #e74c4c;
+  --colorPaletteYellowForeground1: #fde300;
+  --colorPaletteBlueForeground1: #479ef5;
+  --spacingXS: 4px;
+  --spacingS: 8px;
+  --spacingM: 12px;
+  --spacingL: 16px;
+  --spacingXL: 20px;
+  --spacingXXL: 24px;
+  --spacingXXXL: 32px;
+  --borderRadiusS: 4px;
+  --borderRadiusM: 8px;
+  --borderRadiusL: 12px;
+}

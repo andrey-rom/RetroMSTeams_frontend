@@ -22,5 +22,5 @@
     "noUncheckedSideEffectImports": true,
     "forceConsistentCasingInFileNames": false
   },
-  "include": ["src/Tab"]
+  "include": ["src"]
 }

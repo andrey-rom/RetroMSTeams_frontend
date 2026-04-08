@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro-Bot — Session History</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      --colorNeutralBackground1: #1f1f1f;
+      --colorNeutralBackground2: #292929;
+      --colorNeutralBackground3: #141414;
+      --colorNeutralBackground4: #333333;
+      --colorNeutralBackgroundHover: #383838;
+      --colorNeutralForeground1: #ffffff;
+      --colorNeutralForeground2: #d6d6d6;
+      --colorNeutralForeground3: #adadad;
+      --colorNeutralForeground4: #999999;
+      --colorNeutralStroke1: #404040;
+      --colorNeutralStroke2: #383838;
+      --colorBrandBackground: #5b5fc7;
+      --colorBrandBackgroundHover: #7179d2;
+      --colorBrandForegroundLink: #96a0f7;
+      --colorPaletteGreenForeground1: #5ec75a;
+      --colorPaletteRedForeground1: #e74c4c;
+      --colorPaletteYellowForeground1: #fde300;
+      --colorPaletteBlueForeground1: #479ef5;
+      --shadow4: 0px 2px 4px rgba(0,0,0,0.14);
+      --spacingXS: 4px; --spacingS: 8px; --spacingM: 12px; --spacingL: 16px;
+      --spacingXL: 20px; --spacingXXL: 24px; --spacingXXXL: 32px;
+      --borderRadiusS: 4px; --borderRadiusM: 8px; --borderRadiusL: 12px;
+      --fontFamilyBase: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      --fontSizeBase100: 10px; --fontSizeBase200: 12px; --fontSizeBase300: 14px;
+      --fontSizeBase400: 16px; --fontSizeBase500: 20px; --fontSizeBase600: 24px;
+      --fontWeightRegular: 400; --fontWeightSemibold: 600; --fontWeightBold: 700;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--fontFamilyBase);
+      background: var(--colorNeutralBackground3);
+      color: var(--colorNeutralForeground1);
+      font-size: var(--fontSizeBase300);
+      line-height: 1.5; min-height: 100vh;
+    }
+
+    .app-shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* Header */
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--spacingM) var(--spacingXL);
+      background: var(--colorNeutralBackground2);
+      border-bottom: 1px solid var(--colorNeutralStroke1);
+      min-height: 52px; flex-shrink: 0;
+    }
+    .header-left { display: flex; align-items: center; gap: var(--spacingM); }
+    .header-logo { display: flex; align-items: center; gap: var(--spacingS); }
+    .header-logo-icon { width: 28px; height: 28px; background: var(--colorBrandBackground); border-radius: var(--borderRadiusS); display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; }
+    .header-title { font-size: var(--fontSizeBase400); font-weight: var(--fontWeightSemibold); }
+    .header-right { display: flex; align-items: center; gap: var(--spacingM); }
+
+    .btn { display: inline-flex; align-items: center; gap: var(--spacingS); padding: 8px 20px; border-radius: var(--borderRadiusS); border: none; font-family: var(--fontFamilyBase); font-size: var(--fontSizeBase300); font-weight: var(--fontWeightSemibold); cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: var(--colorBrandBackground); color: white; }
+    .btn-primary:hover { background: var(--colorBrandBackgroundHover); }
+    .btn-subtle { background: transparent; color: var(--colorNeutralForeground2); border: 1px solid var(--colorNeutralStroke1); }
+
+    /* Tab navigation */
+    .tab-nav {
+      display: flex; padding: 0 var(--spacingXL);
+      background: var(--colorNeutralBackground2);
+      border-bottom: 1px solid var(--colorNeutralStroke1);
+      flex-shrink: 0;
+    }
+
+    .tab-item {
+      padding: var(--spacingM) var(--spacingXL);
+      font-size: var(--fontSizeBase300);
+      color: var(--colorNeutralForeground3);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      font-weight: var(--fontWeightSemibold);
+    }
+
+    .tab-item:hover { color: var(--colorNeutralForeground1); }
+
+    .tab-item.active {
+      color: var(--colorBrandForegroundLink);
+      border-bottom-color: var(--colorBrandBackground);
+    }
+
+    /* Content */
+    .history-content {
+      flex: 1; overflow-y: auto;
+      padding: var(--spacingXXL) var(--spacingXL);
+      display: flex; justify-content: center;
+    }
+
+    .history-container { width: 100%; max-width: 800px; }
+
+    /* Page heading */
+    .page-heading {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--spacingXXL);
+    }
+
+    .page-title {
+      font-size: var(--fontSizeBase600);
+      font-weight: var(--fontWeightBold);
+    }
+
+    .page-subtitle {
+      font-size: var(--fontSizeBase300);
+      color: var(--colorNeutralForeground3);
+      margin-top: var(--spacingXS);
+    }
+
+    /* Search & filter bar */
+    .filter-bar {
+      display: flex; gap: var(--spacingM); margin-bottom: var(--spacingXL);
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--colorNeutralBackground1);
+      border: 1px solid var(--colorNeutralStroke1);
+      border-radius: var(--borderRadiusS);
+      padding: var(--spacingS) var(--spacingL);
+      padding-left: 36px;
+      color: var(--colorNeutralForeground1);
+      font-family: var(--fontFamilyBase);
+      font-size: var(--fontSizeBase300);
+      outline: none;
+    }
+
+    .search-input::placeholder { color: var(--colorNeutralForeground4); }
+    .search-input:focus { border-color: var(--colorBrandBackground); }
+
+    .search-wrapper {
+      flex: 1; position: relative;
+    }
+
+    .search-icon {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--colorNeutralForeground4); font-size: 13px;
+    }
+
+    .filter-select {
+      background: var(--colorNeutralBackground1);
+      border: 1px solid var(--colorNeutralStroke1);
+      border-radius: var(--borderRadiusS);
+      padding: var(--spacingS) var(--spacingL);
+      color: var(--colorNeutralForeground2);
+      font-family: var(--fontFamilyBase);
+      font-size: var(--fontSizeBase300);
+      outline: none; cursor: pointer;
+    }
+
+    /* Session list */
+    .session-list {
+      display: flex; flex-direction: column; gap: var(--spacingM);
+    }
+
+    .session-card {
+      background: var(--colorNeutralBackground2);
+      border: 1px solid var(--colorNeutralStroke2);
+      border-radius: var(--borderRadiusM);
+      padding: var(--spacingL) var(--spacingXL);
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: all 0.15s;
+    }
+
+    .session-card:hover {
+      border-color: var(--colorNeutralStroke1);
+      background: var(--colorNeutralBackgroundHover);
+    }
+
+    .session-card-left { display: flex; align-items: center; gap: var(--spacingL); flex: 1; }
+
+    .session-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--borderRadiusM);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+
+    .session-icon.completed { background: rgba(94, 199, 90, 0.1); }
+    .session-icon.active { background: rgba(91, 95, 199, 0.1); }
+    .session-icon.draft { background: rgba(153, 153, 153, 0.1); }
+
+    .session-info { flex: 1; }
+
+    .session-card-title {
+      font-size: var(--fontSizeBase400);
+      font-weight: var(--fontWeightSemibold);
+      margin-bottom: 2px;
+    }
+
+    .session-card-meta {
+      display: flex; align-items: center; gap: var(--spacingM);
+      font-size: var(--fontSizeBase200);
+      color: var(--colorNeutralForeground4);
+    }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 10px;
+      font-size: var(--fontSizeBase100); font-weight: var(--fontWeightSemibold);
+    }
+
+    .status-badge.completed { background: rgba(94, 199, 90, 0.1); color: #5ec75a; }
+    .status-badge.active { background: rgba(91, 95, 199, 0.15); color: var(--colorBrandForegroundLink); }
+    .status-badge.draft { background: rgba(153, 153, 153, 0.1); color: var(--colorNeutralForeground4); }
+
+    .session-stats {
+      display: flex; gap: var(--spacingXL); align-items: center;
+    }
+
+    .session-stat {
+      text-align: center;
+    }
+
+    .session-stat-value {
+      font-size: var(--fontSizeBase400);
+      font-weight: var(--fontWeightBold);
+      color: var(--colorNeutralForeground2);
+    }
+
+    .session-stat-label {
+      font-size: var(--fontSizeBase100);
+      color: var(--colorNeutralForeground4);
+      text-transform: uppercase;
+    }
+
+    .session-arrow {
+      color: var(--colorNeutralForeground4);
+      font-size: 14px;
+      margin-left: var(--spacingL);
+    }
+
+    /* Template tag */
+    .template-tag {
+      display: inline-flex; padding: 1px 6px;
+      border-radius: var(--borderRadiusS);
+      font-size: var(--fontSizeBase100);
+      background: var(--colorNeutralBackground4);
+      color: var(--colorNeutralForeground3);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      color: var(--colorNeutralForeground4);
+      margin-bottom: var(--spacingL);
+    }
+
+    .empty-title {
+      font-size: var(--fontSizeBase500);
+      font-weight: var(--fontWeightSemibold);
+      margin-bottom: var(--spacingS);
+    }
+
+    .empty-desc {
+      color: var(--colorNeutralForeground3);
+      margin-bottom: var(--spacingXL);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .session-stats { display: none; }
+      .filter-bar { flex-direction: column; }
+      .page-heading { flex-direction: column; gap: var(--spacingM); text-align: center; }
+      .session-card { flex-direction: column; gap: var(--spacingM); align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <header class="header">
+      <div class="header-left">
+        <div class="header-logo">
+          <div class="header-logo-icon"><i class="fas fa-rotate"></i></div>
+          <span class="header-title">Retro-Bot</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Session
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <div class="tab-item" onclick="window.location.href='03-config-session-setup.html'">New Session</div>
+      <div class="tab-item active">History</div>
+    </nav>
+
+    <div class="history-content">
+      <div class="history-container">
+
+        <div class="page-heading">
+          <div>
+            <h1 class="page-title">Session History</h1>
+            <p class="page-subtitle">Past retrospectives for this channel</p>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input class="search-input" placeholder="Search sessions..." />
+          </div>
+          <select class="filter-select">
+            <option>All Templates</option>
+            <option>Start / Stop / Continue</option>
+            <option>Mad / Sad / Glad</option>
+            <option>4L</option>
+          </select>
+          <select class="filter-select">
+            <option>All Statuses</option>
+            <option>Completed</option>
+            <option>Active</option>
+            <option>Draft</option>
+          </select>
+        </div>
+
+        <!-- Session list -->
+        <div class="session-list">
+
+          <!-- Active session -->
+          <div class="session-card">
+            <div class="session-card-left">
+              <div class="session-icon active">&#x1F504;</div>
+              <div class="session-info">
+                <div class="session-card-title">Sprint 14 Retrospective</div>
+                <div class="session-card-meta">
+                  <span class="status-badge active"><i class="fas fa-circle" style="font-size:6px"></i> Active</span>
+                  <span class="template-tag">SSC</span>
+                  <span>Started 5 min ago</span>
+                </div>
+              </div>
+            </div>
+            <div class="session-stats">
+              <div class="session-stat">
+                <div class="session-stat-value">9</div>
+                <div class="session-stat-label">Cards</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">6</div>
+                <div class="session-stat-label">Participants</div>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right session-arrow"></i>
+          </div>
+
+          <!-- Completed sessions -->
+          <div class="session-card">
+            <div class="session-card-left">
+              <div class="session-icon completed">&#x2705;</div>
+              <div class="session-info">
+                <div class="session-card-title">Sprint 13 Retrospective</div>
+                <div class="session-card-meta">
+                  <span class="status-badge completed"><i class="fas fa-check" style="font-size:8px"></i> Completed</span>
+                  <span class="template-tag">MSG</span>
+                  <span>Mar 16, 2026</span>
+                </div>
+              </div>
+            </div>
+            <div class="session-stats">
+              <div class="session-stat">
+                <div class="session-stat-value">12</div>
+                <div class="session-stat-label">Cards</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">7</div>
+                <div class="session-stat-label">Participants</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">31</div>
+                <div class="session-stat-label">Votes</div>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right session-arrow"></i>
+          </div>
+
+          <div class="session-card">
+            <div class="session-card-left">
+              <div class="session-icon completed">&#x2705;</div>
+              <div class="session-info">
+                <div class="session-card-title">Sprint 12 Retrospective</div>
+                <div class="session-card-meta">
+                  <span class="status-badge completed"><i class="fas fa-check" style="font-size:8px"></i> Completed</span>
+                  <span class="template-tag">SSC</span>
+                  <span>Mar 2, 2026</span>
+                </div>
+              </div>
+            </div>
+            <div class="session-stats">
+              <div class="session-stat">
+                <div class="session-stat-value">8</div>
+                <div class="session-stat-label">Cards</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">5</div>
+                <div class="session-stat-label">Participants</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">19</div>
+                <div class="session-stat-label">Votes</div>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right session-arrow"></i>
+          </div>
+
+          <div class="session-card">
+            <div class="session-card-left">
+              <div class="session-icon completed">&#x2705;</div>
+              <div class="session-info">
+                <div class="session-card-title">Sprint 11 Retrospective</div>
+                <div class="session-card-meta">
+                  <span class="status-badge completed"><i class="fas fa-check" style="font-size:8px"></i> Completed</span>
+                  <span class="template-tag">4L</span>
+                  <span>Feb 16, 2026</span>
+                </div>
+              </div>
+            </div>
+            <div class="session-stats">
+              <div class="session-stat">
+                <div class="session-stat-value">15</div>
+                <div class="session-stat-label">Cards</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">6</div>
+                <div class="session-stat-label">Participants</div>
+              </div>
+              <div class="session-stat">
+                <div class="session-stat-value">28</div>
+                <div class="session-stat-label">Votes</div>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right session-arrow"></i>
+          </div>
+
+          <!-- Draft -->
+          <div class="session-card">
+            <div class="session-card-left">
+              <div class="session-icon draft">&#x1F4DD;</div>
+              <div class="session-info">
+                <div class="session-card-title">Mid-semester Feedback</div>
+                <div class="session-card-meta">
+                  <span class="status-badge draft"><i class="fas fa-pen" style="font-size:8px"></i> Draft</span>
+                  <span class="template-tag">MSG</span>
+                  <span>Created Feb 10, 2026</span>
+                </div>
+              </div>
+            </div>
+            <div class="session-stats"></div>
+            <i class="fas fa-chevron-right session-arrow"></i>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -10,29 +10,42 @@ import type * as microsoftTeams from "@microsoft/teams-js";
 export function getMockContext(): microsoftTeams.app.Context {
   return {
     app: {
+      appLaunchId: undefined,
       host: {
-        name: "Teams" as microsoftTeams.HostName,
         clientType: "desktop" as microsoftTeams.HostClientType,
-        sessionId: "mock-host-session-001",
+        name: "Teams" as microsoftTeams.HostName,
         ringId: "general",
+        sessionId: "mock-host-session-001",
       },
-      locale: "en-us",
-      theme: "default",
       iconPositionVertical: 0,
+      locale: "en-us",
       osLocaleInfo: undefined,
       parentMessageId: undefined,
+      theme: "default",
       userClickTime: undefined,
       userFileOpenPreference: undefined,
-      appLaunchId: undefined,
+    },
+    channel: {
+      displayName: "General",
+      id: "mock-channel-19:general@thread.tacv2",
+      membershipType: "standard" as microsoftTeams.ChannelType,
+      relativeUrl: "/sites/DevTeam/General",
     },
     page: {
-      id: "home",
       frameContext: "content" as microsoftTeams.FrameContexts,
+      id: "home",
+    },
+    team: {
+      displayName: "Dev Team",
+      groupId: "mock-group-00000000-0000-0000-0000-000000000001",
+      internalId: "mock-team-internal-id",
+      isArchived: false,
+      type: 0 as microsoftTeams.TeamType,
+      userRole: 0 as microsoftTeams.UserTeamRole,
     },
     user: {
-      id: "mock-user-oid-00000000-0000-0000-0000-000000000001",
-      userPrincipalName: "dev.user@contoso.com",
       displayName: "Dev User",
+      id: "mock-user-oid-00000000-0000-0000-0000-000000000001",
       isCallingAllowed: true,
       isPSTNCallingAllowed: false,
       licenseType: "E5",
@@ -41,20 +54,7 @@ export function getMockContext(): microsoftTeams.app.Context {
         id: "mock-tenant-00000000-0000-0000-0000-000000000001",
         teamsSku: "enterprise",
       },
-    },
-    channel: {
-      id: "mock-channel-19:general@thread.tacv2",
-      displayName: "General",
-      relativeUrl: "/sites/DevTeam/General",
-      membershipType: "standard" as microsoftTeams.ChannelType,
-    },
-    team: {
-      internalId: "mock-team-internal-id",
-      displayName: "Dev Team",
-      type: 0 as microsoftTeams.TeamType,
-      groupId: "mock-group-00000000-0000-0000-0000-000000000001",
-      isArchived: false,
-      userRole: 0 as microsoftTeams.UserTeamRole,
+      userPrincipalName: "dev.user@contoso.com",
     },
   } as microsoftTeams.app.Context;
 }

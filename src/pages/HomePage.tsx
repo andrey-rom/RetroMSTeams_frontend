@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { api, type Template, type Session } from "../lib/api-client";
+import { api, type Template, type Session } from "../shared/lib/api-client";
 
 interface HomePageProps {
   onSessionOpen: (sessionId: string) => void;
@@ -16,10 +16,16 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.getTemplates().then(setTemplates).catch(() => {
-      setError("Cannot reach backend — is it running on localhost:3000?");
-    });
-    api.getSessions().then(setSessions).catch(() => {});
+    api
+      .getTemplates()
+      .then(setTemplates)
+      .catch(() => {
+        setError("Cannot reach backend — is it running on localhost:3000?");
+      });
+    api
+      .getSessions()
+      .then(setSessions)
+      .catch(() => {});
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -61,11 +67,7 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
             <p>{tpl.description}</p>
             <div className="template-columns">
               {tpl.values.map((v) => (
-                <span
-                  key={v.value}
-                  className="template-col-chip"
-                  style={{ backgroundColor: v.color }}
-                >
+                <span key={v.value} className="template-col-chip" style={{ backgroundColor: v.color }}>
                   {v.label}
                 </span>
               ))}
@@ -118,11 +120,7 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
         <div className="sessions-list">
           <h3>Recent sessions</h3>
           {sessions.map((s) => (
-            <div
-              key={s.id}
-              className="session-item"
-              onClick={() => onSessionOpen(s.id)}
-            >
+            <div key={s.id} className="session-item" onClick={() => onSessionOpen(s.id)}>
               <span className="title">{s.title}</span>
               <span className="meta">
                 {s.templateType.code} &middot; {s.currentPhase}
