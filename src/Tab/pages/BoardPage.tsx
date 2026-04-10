@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   api,
   getUserId,
+  generateOwnerHash,
   type Session,
   type SessionSummary,
   type Card,
@@ -23,6 +24,8 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   const [timerExpired, setTimerExpired] = useState(false);
   const [graceActive, setGraceActive] = useState(false);
   const [graceUsedColumns, setGraceUsedColumns] = useState<Set<string>>(new Set());
+  const [activeUsers, setActiveUsers] = useState(0);
+  const [ownerHash, setOwnerHash] = useState<string | null>(null);
 
   const { on, off } = useSocket(sessionId);
 
@@ -57,7 +60,8 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+    generateOwnerHash(getUserId(), sessionId).then(setOwnerHash);
+  }, [loadData, sessionId]);
 
   useEffect(() => {
     // Define handlers as separate named functions so we can properly clean them up
@@ -123,7 +127,11 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       setGraceUsedColumns(new Set());
     };
 
-    // Register all handlers
+    const handleUsersCount = (raw: unknown) => {
+      const { count } = raw as { count: number };
+      setActiveUsers(count);
+    };
+
     on("card:created", handleCardCreated);
     on("card:updated", handleCardUpdated);
     on("card:deleted", handleCardDeleted);
@@ -132,9 +140,8 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     on("timer:started", handleTimerStarted);
     on("timer:expired", handleTimerExpired);
     on("collect:grace", handleCollectGrace);
+    on("users:count", handleUsersCount);
 
-    // Return cleanup function to unregister all handlers when component unmounts
-    // This prevents memory leaks and duplicate event processing
     return () => {
       off("card:created");
       off("card:updated");
@@ -144,6 +151,7 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       off("timer:started");
       off("timer:expired");
       off("collect:grace");
+      off("users:count");
     };
   }, [on, off]);
 
@@ -213,6 +221,12 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         <h2>{session.title}</h2>
         <span className="phase-badge">{phase}</span>
         <CountdownTimer expiresAt={session.timerExpiresAt} />
+        {phase !== "summary" && (
+          <span className="active-users-badge">
+            <span className="active-users-dot" />
+            {activeUsers} {activeUsers === 1 ? "user" : "users"}
+          </span>
+        )}
         {isModerator && <span className="moderator-badge">Moderator</span>}
 
         {isModerator && phase === "collect" && collectTimerNotStarted && (
@@ -296,6 +310,7 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
               graceActive={graceActive}
               graceUsed={graceUsedColumns.has(col.value)}
               onGraceCardAdded={onGraceCardAdded}
+              ownerHash={ownerHash}
             />
           ))}
         </div>
@@ -315,6 +330,7 @@ interface ColumnProps {
   graceActive: boolean;
   graceUsed: boolean;
   onGraceCardAdded: (columnKey: string) => void;
+  ownerHash: string | null;
 }
 
 function Column({
@@ -328,6 +344,7 @@ function Column({
   graceActive,
   graceUsed,
   onGraceCardAdded,
+  ownerHash,
 }: ColumnProps) {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -364,7 +381,9 @@ function Column({
           <CardItem
             key={card.id}
             card={card}
+            collectPhase={collectPhase}
             votePhase={votePhase}
+            isOwner={ownerHash !== null && card.ownerHash === ownerHash}
             hasVoted={votedCardIds.has(card.id)}
             onVoteToggle={onVoteToggle}
           />

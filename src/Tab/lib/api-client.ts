@@ -5,12 +5,23 @@
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export function getUserId(): string {
-  let id = localStorage.getItem("retrobot-user-id");
+  let id = sessionStorage.getItem("retrobot-user-id");
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem("retrobot-user-id", id);
+    sessionStorage.setItem("retrobot-user-id", id);
   }
   return id;
+}
+
+export async function generateOwnerHash(
+  userId: string,
+  sessionId: string,
+): Promise<string> {
+  const data = new TextEncoder().encode(`${userId}:${sessionId}`);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export function getUserDisplayName(): string {
@@ -108,6 +119,17 @@ export const api = {
     request<Card>(`/sessions/${sessionId}/cards`, {
       method: "POST",
       body: JSON.stringify({ columnKey, content }),
+    }),
+
+  updateCard: (cardId: string, content: string) =>
+    request<Card>(`/cards/${cardId}`, {
+      method: "PUT",
+      body: JSON.stringify({ content }),
+    }),
+
+  deleteCard: (cardId: string) =>
+    request<{ success: boolean }>(`/cards/${cardId}`, {
+      method: "DELETE",
     }),
 
   getMyVotes: (sessionId: string) =>
