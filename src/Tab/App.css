@@ -223,10 +223,122 @@ h1 {
   border-left: 3px solid #6264A7;
 }
 
+.card-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.card-body p {
+  flex: 1;
+}
+
 .card p {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.4;
+}
+
+.card-owned {
+  border-left-color: #4caf50;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.2rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.card:hover .card-actions {
+  opacity: 1;
+}
+
+.card-action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #bbb;
+  border-radius: 4px;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.card-action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.card-action-delete:hover {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: rgba(244, 67, 54, 0.5);
+  color: #ff6b6b;
+}
+
+.card-editing {
+  border-left-color: #e8a317;
+}
+
+.card-edit-textarea {
+  width: 100%;
+  background: #1e1e2e;
+  border: 1px solid #6264A7;
+  border-radius: 4px;
+  color: white;
+  padding: 0.4rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.card-edit-textarea:focus {
+  outline: none;
+  border-color: #8b8dd4;
+}
+
+.card-edit-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.card-edit-save {
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.card-edit-save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.card-edit-cancel {
+  background: none;
+  color: #aaa;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.card-edit-cancel:hover {
+  color: white;
+  border-color: #888;
 }
 
 .card-footer {

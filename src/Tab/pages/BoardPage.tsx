@@ -414,13 +414,21 @@ function Column({
 
 interface CardItemProps {
   card: Card;
+  collectPhase: boolean;
   votePhase: boolean;
+  isOwner: boolean;
   hasVoted: boolean;
   onVoteToggle: (cardId: string, voted: boolean) => void;
 }
 
-function CardItem({ card, votePhase, hasVoted, onVoteToggle }: CardItemProps) {
+function CardItem({ card, collectPhase, votePhase, isOwner, hasVoted, onVoteToggle }: CardItemProps) {
   const [voting, setVoting] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(card.content);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const canModify = collectPhase && isOwner;
 
   const handleToggleVote = async () => {
     if (voting) return;
@@ -440,9 +448,101 @@ function CardItem({ card, votePhase, hasVoted, onVoteToggle }: CardItemProps) {
     }
   };
 
+  const handleSaveEdit = async () => {
+    const trimmed = editText.trim();
+    if (!trimmed || saving) return;
+    if (trimmed === card.content) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.updateCard(card.id, trimmed);
+      setEditing(false);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Edit failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      await api.deleteCard(card.id);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Delete failed");
+      setDeleting(false);
+    }
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === "Escape") {
+      setEditText(card.content);
+      setEditing(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <div className="card card-editing">
+        <textarea
+          className="card-edit-textarea"
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
+          onKeyDown={handleEditKeyDown}
+          maxLength={500}
+          rows={3}
+          autoFocus
+        />
+        <div className="card-edit-actions">
+          <button
+            className="card-edit-save"
+            onClick={handleSaveEdit}
+            disabled={!editText.trim() || saving}
+          >
+            {saving ? "..." : "Save"}
+          </button>
+          <button
+            className="card-edit-cancel"
+            onClick={() => { setEditText(card.content); setEditing(false); }}
+            disabled={saving}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="card">
-      <p>{card.content}</p>
+    <div className={`card${canModify ? " card-owned" : ""}`}>
+      <div className="card-body">
+        <p>{card.content}</p>
+        {canModify && (
+          <div className="card-actions">
+            <button
+              className="card-action-btn"
+              onClick={() => setEditing(true)}
+              title="Edit card"
+            >
+              &#9998;
+            </button>
+            <button
+              className="card-action-btn card-action-delete"
+              onClick={handleDelete}
+              disabled={deleting}
+              title="Delete card"
+            >
+              {deleting ? "..." : "\u00D7"}
+            </button>
+          </div>
+        )}
+      </div>
       <div className="card-footer">
         {card.votesCount > 0 && (
           <span className="vote-count">{card.votesCount} vote{card.votesCount !== 1 ? "s" : ""}</span>
