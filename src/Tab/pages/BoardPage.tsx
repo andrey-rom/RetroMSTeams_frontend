@@ -394,6 +394,12 @@ function Column({
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e as unknown as React.FormEvent);
+              }
+            }}
             placeholder={graceActive ? `Last card for "${column.label}"...` : `Add a "${column.label}" card...`}
             maxLength={500}
             rows={2}
