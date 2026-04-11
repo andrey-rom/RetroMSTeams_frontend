@@ -1,32 +1,32 @@
-export interface TemplateValue {
+export interface Session {
+  collectGraceAt: null | string;
+  collectTimerSeconds: null | number;
+  createdAt: string;
+  creatorId: string;
+  currentPhase: "collect" | "summary" | "vote";
+  currentStatus: "active" | "archived" | "completed";
   id: string;
-  value: string;
-  label: string;
-  color: string;
-  sortOrder: number;
+  maxVotesPerUser: number;
+  reportMessageId: null | string;
+  templateType: Template;
+  timerExpiresAt: null | string;
+  title: string;
+  updatedAt: string;
+  voteTimerSeconds: null | number;
 }
 
 export interface Template {
-  id: string;
   code: string;
+  description: null | string;
+  id: string;
   name: string;
-  description: string | null;
   values: TemplateValue[];
 }
 
-export interface Session {
+export interface TemplateValue {
+  color: string;
   id: string;
-  title: string;
-  creatorId: string;
-  currentPhase: "collect" | "vote" | "summary";
-  currentStatus: "active" | "completed" | "archived";
-  maxVotesPerUser: number;
-  collectTimerSeconds: number | null;
-  voteTimerSeconds: number | null;
-  timerExpiresAt: string | null;
-  collectGraceAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  reportMessageId: string | null;
-  templateType: Template;
+  label: string;
+  sortOrder: number;
+  value: string;
 }

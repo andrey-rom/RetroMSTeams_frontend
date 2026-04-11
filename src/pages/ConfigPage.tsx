@@ -1,4 +1,4 @@
-import SessionConfig from "../features/session/SessionConfig.tsx";
+import SessionConfig from "../features/session/SessionConfig";
 
 interface ConfigPageProps {
   onSessionOpen: (sessionId: string) => void;

@@ -1,7 +1,11 @@
+/**
+ * Fluent UI v9–aligned tokens (Teams dark). Sync with TMP/01-board-collect-desktop.html.
+ */
 :root {
   --colorNeutralBackground1: #1f1f1f;
   --colorNeutralBackground2: #292929;
   --colorNeutralBackground3: #141414;
+  --colorNeutralBackground4: #333333;
   --colorNeutralBackgroundHover: #383838;
   --colorNeutralForeground1: #ffffff;
   --colorNeutralForeground2: #d6d6d6;
@@ -12,10 +16,19 @@
   --colorBrandBackground: #5b5fc7;
   --colorBrandBackgroundHover: #7179d2;
   --colorBrandForegroundLink: #96a0f7;
+  --colorPaletteGreenBackground1: #052505;
   --colorPaletteGreenForeground1: #5ec75a;
   --colorPaletteRedForeground1: #e74c4c;
+  --colorPaletteRedBackground1: #3b0509;
   --colorPaletteYellowForeground1: #fde300;
+  --colorPaletteYellowBackground1: #3b3300;
   --colorPaletteBlueForeground1: #479ef5;
+  --colorPaletteBlueBackground1: #002b4e;
+
+  --shadow4: 0px 2px 4px rgba(0, 0, 0, 0.14);
+  --shadow8: 0px 4px 8px rgba(0, 0, 0, 0.14);
+  --shadow16: 0px 8px 16px rgba(0, 0, 0, 0.14);
+
   --spacingXS: 4px;
   --spacingS: 8px;
   --spacingM: 12px;
@@ -23,7 +36,23 @@
   --spacingXL: 20px;
   --spacingXXL: 24px;
   --spacingXXXL: 32px;
+
   --borderRadiusS: 4px;
   --borderRadiusM: 8px;
   --borderRadiusL: 12px;
+
+  --fontFamilyBase: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --fontSizeBase100: 10px;
+  --fontSizeBase200: 12px;
+  --fontSizeBase300: 14px;
+  --fontSizeBase400: 16px;
+  --fontSizeBase500: 20px;
+  --fontSizeBase600: 24px;
+  --fontWeightRegular: 400;
+  --fontWeightSemibold: 600;
+  --fontWeightBold: 700;
+
+  --columnStartColor: #5ec75a;
+  --columnStopColor: #e74c4c;
+  --columnContinueColor: #479ef5;
 }

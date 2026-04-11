@@ -112,6 +112,11 @@ export const api = {
       method: "POST",
     }),
 
+  deleteCard: (cardId: string) =>
+    request<{ success: boolean }>(`/sessions/cards/${cardId}`, {
+      method: "DELETE",
+    }),
+
   getCards: (sessionId: string) => request<Card[]>(`/sessions/${sessionId}/cards`),
 
   getGraceStatus: (sessionId: string) =>
@@ -140,6 +145,12 @@ export const api = {
   startCollect: (sessionId: string) =>
     request<{ started: boolean }>(`/sessions/${sessionId}/start`, {
       method: "POST",
+    }),
+
+  updateCard: (cardId: string, content: string) =>
+    request<Card>(`/sessions/cards/${cardId}`, {
+      body: JSON.stringify({ content }),
+      method: "PUT",
     }),
 };
 
