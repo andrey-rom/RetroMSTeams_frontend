@@ -1,5 +1,8 @@
 import type { TemplateValue } from "../../shared/lib/api-client.ts";
 
+/** Tag style for TMP/04-summary-results.html (SSC start/stop/continue). */
+export type SummaryTagKind = "continue" | "other" | "start" | "stop";
+
 /** Relative time like the HTML mock ("2 min ago"). */
 export function formatCardTimeAgo(iso: string): string {
   const t = new Date(iso).getTime();
@@ -25,6 +28,27 @@ export function formatCardTimeAgo(iso: string): string {
   const d = Math.floor(h / 24);
 
   return `${d} day${d === 1 ? "" : "s"} ago`;
+}
+
+/** Session length for summary stats (e.g. "15m", "1h 5m"). */
+export function formatSummaryDuration(createdAtIso: string, endAtIso?: null | string): string {
+  const start = new Date(createdAtIso).getTime();
+  const end = endAtIso ? new Date(endAtIso).getTime() : Date.now();
+
+  if (Number.isNaN(start) || Number.isNaN(end)) {
+    return "—";
+  }
+
+  const totalMin = Math.max(0, Math.round((end - start) / 60_000));
+
+  if (totalMin < 60) {
+    return `${totalMin}m`;
+  }
+
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
 /** Top accent bar: prefer template color; fallback by column index for SSC-like layouts. */
@@ -59,6 +83,20 @@ export function getColumnEmoji(templateCode: string, columnIndex: number): strin
   }
 
   return "📝";
+}
+
+export function getSummaryTagKind(templateCode: string, columnIndex: number): SummaryTagKind {
+  const code = templateCode.toUpperCase();
+
+  if (code === "SSC") {
+    return (["start", "stop", "continue"] as const)[columnIndex] ?? "other";
+  }
+
+  if (code === "MSG") {
+    return (["stop", "continue", "start"] as const)[columnIndex] ?? "other";
+  }
+
+  return "other";
 }
 
 export function sortColumns(values: TemplateValue[]): TemplateValue[] {

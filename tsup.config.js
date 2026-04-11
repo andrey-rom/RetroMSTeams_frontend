@@ -2,15 +2,15 @@
  * @type {import('tsup').Options}
  */
 module.exports = {
-  dts: true,
-  minify: false,
   bundle: false,
-  sourcemap: true,
-  treeshake: true,
-  splitting: true,
   clean: true,
-  outDir: "dist",
-  format: ["cjs", "esm"],
+  dts: true,
   entry: ["src/index.ts"],
+  format: ["cjs", "esm"],
+  minify: false,
+  outDir: "dist",
+  sourcemap: true,
+  splitting: true,
+  treeshake: true,
   tsconfig: "tsconfig.node.json",
 };

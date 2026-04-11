@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatCardTimeAgo, getColumnAccentColor, getColumnEmoji, sortColumns } from "../helpers.ts";
 import { useLiveTimerDisplay } from "../hooks/useLiveTimerDisplay.ts";
-import styles from "./BoardCollectDesktop.module.css";
+import styles from "./BoardCollect.module.css";
 import type { Card, TemplateValue } from "../../../shared/lib/api-client.ts";
 
 export interface BoardCollectDesktopProps {
@@ -54,7 +54,7 @@ interface ColumnProps {
   templateCode: string;
 }
 
-export default function BoardCollectDesktop({
+export default function BoardCollect({
   cards,
   collectTimerConfigured,
   collectTimerNotStarted,

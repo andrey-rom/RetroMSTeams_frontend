@@ -1,6 +1,6 @@
-import BoardCollectDesktop from "./BoardCollectDesktop";
-import BoardVoteDesktop from "./BoardVoteDesktop";
-import BoardSummaryView from "./BoardSummaryView";
+import BoardCollect from "./BoardCollect.tsx";
+import BoardVote from "./BoardVote.tsx";
+import BoardSummary from "./BoardSummary.tsx";
 import type { Session, Card, TemplateValue } from "../../../shared/lib/api-client.ts";
 
 export interface BoardSessionViewProps {
@@ -57,7 +57,7 @@ export default function BoardSessionView({
   switch (session.currentPhase) {
     case "collect":
       return (
-        <BoardCollectDesktop
+        <BoardCollect
           cards={cards}
           collectTimerConfigured={collectTimerConfigured}
           collectTimerNotStarted={collectTimerNotStarted}
@@ -81,10 +81,18 @@ export default function BoardSessionView({
         />
       );
     case "summary":
-      return <BoardSummaryView session={session} sessionId={sessionId} onBack={onBack} onPublish={onPublish} />;
+      return (
+        <BoardSummary
+          isModerator={isModerator}
+          session={session}
+          sessionId={sessionId}
+          onBack={onBack}
+          onPublish={onPublish}
+        />
+      );
     case "vote":
       return (
-        <BoardVoteDesktop
+        <BoardVote
           cards={cards}
           columns={columns}
           isModerator={isModerator}
