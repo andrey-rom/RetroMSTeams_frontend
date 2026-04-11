@@ -26,6 +26,7 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
   const [graceUsedColumns, setGraceUsedColumns] = useState<Set<string>>(new Set());
   const [activeUsers, setActiveUsers] = useState(0);
   const [ownerHash, setOwnerHash] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
 
   const { on, off } = useSocket(sessionId);
 
@@ -194,8 +195,6 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       alert(err instanceof Error ? err.message : "Phase change failed");
     }
   };
-
-  const [publishing, setPublishing] = useState(false);
 
   const handlePublish = async () => {
     if (publishing) return;
