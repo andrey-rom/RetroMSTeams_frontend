@@ -28,7 +28,7 @@
     "staticTabs": [
         {
             "entityId": "index0",
-            "name": "Home",
+            "name": "Retro",
             "contentUrl": "${{TAB_ENDPOINT}}/tabs/home",
             "websiteUrl": "${{TAB_ENDPOINT}}/tabs/home",
             "scopes": [

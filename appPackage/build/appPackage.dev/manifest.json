@@ -25,7 +25,7 @@
     "staticTabs": [
         {
             "entityId": "index0",
-            "name": "Home",
+            "name": "Retro",
             "contentUrl": "https://tabc2ac8b.azurewebsites.net/tabs/home",
             "websiteUrl": "https://tabc2ac8b.azurewebsites.net/tabs/home",
             "scopes": [
