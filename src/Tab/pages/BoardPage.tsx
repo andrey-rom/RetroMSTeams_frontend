@@ -84,9 +84,9 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     };
 
     const handlePhaseChanged = (raw: unknown) => {
-      const { phase } = raw as { phase: string };
+      const { phase, timerExpiresAt } = raw as { phase: string; timerExpiresAt: string | null };
       setSession((prev) =>
-        prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev,
+        prev ? { ...prev, currentPhase: phase, timerExpiresAt: timerExpiresAt ?? null } : prev,
       );
       setTimerExpired(false);
       setGraceActive(false);
@@ -186,11 +186,10 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
 
   const handleAdvancePhase = async (next: "vote" | "summary") => {
     try {
-      const updated = await api.advancePhase(sessionId, next);
-      setSession(updated);
-      setTimerExpired(false);
-      setGraceActive(false);
-      setGraceUsedColumns(new Set());
+      await api.advancePhase(sessionId, next);
+      // State is updated via the phase:changed socket event (which includes
+      // timerExpiresAt). Don't overwrite session here — the HTTP response
+      // has timerExpiresAt: null since it's returned before the timer is set.
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Phase change failed");
     }
