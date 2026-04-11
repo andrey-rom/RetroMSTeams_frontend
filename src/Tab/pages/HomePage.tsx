@@ -17,7 +17,7 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
 
   useEffect(() => {
     api.getTemplates().then(setTemplates).catch(() => {
-      setError("Cannot reach backend — is it running on localhost:3000?");
+      setError(`Cannot reach backend at ${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}`);
     });
     api.getSessions().then(setSessions).catch(() => {});
   }, []);
