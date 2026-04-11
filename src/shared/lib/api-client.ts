@@ -28,7 +28,10 @@ export interface Session {
   timerExpiresAt: null | string;
   title: string;
   voteTimerSeconds: null | number;
+  cardsCount?: number;
+  participantsCount?: number;
   updatedAt?: string;
+  votesCount?: number;
 }
 
 export interface Template {

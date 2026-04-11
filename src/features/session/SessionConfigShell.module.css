@@ -1,0 +1,88 @@
+/* Header aligned with TMP/03-config-session-setup.html (no tab row) */
+
+.appShell {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacingM) var(--spacingXL);
+  background: var(--colorNeutralBackground2);
+  border-bottom: 1px solid var(--colorNeutralStroke1);
+  min-height: 52px;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacingM);
+}
+
+.headerLogo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacingS);
+}
+
+.headerLogoIcon {
+  width: 28px;
+  height: 28px;
+  background: var(--colorBrandBackground);
+  border-radius: var(--borderRadiusS);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #fff;
+}
+
+.headerLogoIcon i {
+  font-size: 14px;
+}
+
+.headerTitle {
+  font-size: var(--fontSizeBase400);
+  font-weight: var(--fontWeightSemibold);
+  color: var(--colorNeutralForeground1);
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacingM);
+}
+
+.btnText {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacingS);
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--colorBrandForegroundLink);
+  cursor: pointer;
+  font-family: var(--fontFamilyBase);
+  font-size: var(--fontSizeBase300);
+  font-weight: var(--fontWeightSemibold);
+  transition: color 0.15s;
+}
+
+.btnText:hover {
+  color: var(--colorNeutralForeground1);
+}
+
+.mainArea {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

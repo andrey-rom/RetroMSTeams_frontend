@@ -12,25 +12,7 @@ export default function AppLayout({ children, variant = "default" }: AppLayoutPr
 
   return (
     <div className={styles.appShell}>
-      {!isFull && (
-        <header className={styles.header}>
-          <div className={styles.headerLeft}>
-            <div className={styles.headerLogo}>
-              <div className={styles.headerLogoIcon}>
-                <i className="fas fa-rotate" />
-              </div>
-              <span className={styles.headerTitle}>Retro-Bot</span>
-            </div>
-          </div>
-          <div className={styles.headerRight}>
-            <button className={styles.btnText} type="button">
-              <i className="fas fa-clock-rotate-left" /> History
-            </button>
-          </div>
-        </header>
-      )}
-
-      <main className={isFull ? styles.contentFull : styles.content}>{children}</main>
+      <main className={isFull ? styles.contentFull : styles.contentConfig}>{children}</main>
     </div>
   );
 }
