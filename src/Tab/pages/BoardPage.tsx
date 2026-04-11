@@ -195,13 +195,19 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
     }
   };
 
+  const [publishing, setPublishing] = useState(false);
+
   const handlePublish = async () => {
+    if (publishing) return;
+    setPublishing(true);
     try {
       await api.publishSummary(sessionId);
       const updated = await api.getSession(sessionId);
       setSession(updated);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Publish failed");
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -256,8 +262,9 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
           <button
             className="phase-advance-btn publish-btn"
             onClick={handlePublish}
+            disabled={publishing}
           >
-            Publish to Teams
+            {publishing ? "Publishing..." : "Publish to Teams"}
           </button>
         )}
         {phase === "summary" && session.reportMessageId && (
