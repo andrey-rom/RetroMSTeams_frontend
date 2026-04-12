@@ -11,7 +11,7 @@ export default function SessionConfig({ onSessionOpen }: SessionConfigProps) {
   const { data: templates = [], error, isLoading } = useTemplatesQuery();
   const createSessionMutation = useCreateSessionMutation();
 
-  const [title, setTitle] = useState("Sprint 14 Retrospective");
+  const [title, setTitle] = useState("");
   const [collectMinutes, setCollectMinutes] = useState("10");
   const [voteMinutes, setVoteMinutes] = useState("5");
   const [selectedTemplateId, setSelectedTemplateId] = useState<null | string>(null);

@@ -117,7 +117,7 @@ export const api = {
     }),
 
   deleteCard: (cardId: string) =>
-    request<{ success: boolean }>(`/sessions/cards/${cardId}`, {
+    request<{ success: boolean }>(`/cards/${cardId}`, {
       method: "DELETE",
     }),
 
@@ -152,7 +152,7 @@ export const api = {
     }),
 
   updateCard: (cardId: string, content: string) =>
-    request<Card>(`/sessions/cards/${cardId}`, {
+    request<Card>(`/cards/${cardId}`, {
       body: JSON.stringify({ content }),
       method: "PUT",
     }),

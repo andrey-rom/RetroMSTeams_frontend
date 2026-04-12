@@ -22,20 +22,20 @@ export interface BoardVoteDesktopProps {
 }
 
 interface VoteColumnProps {
+  allowNewVote: boolean;
   cards: Card[];
   column: TemplateValue;
   columnIndex: number;
   onVoteToggle: (cardId: string, voted: boolean) => void;
   templateCode: string;
   votedCardIds: Set<string>;
-  votesRemaining: number;
 }
 
 interface VotePhaseCardProps {
+  allowNewVote: boolean;
   card: Card;
   hasVoted: boolean;
   onVoteToggle: (cardId: string, voted: boolean) => void;
-  votesRemaining: number;
 }
 
 export default function BoardVote({
@@ -56,8 +56,7 @@ export default function BoardVote({
   const columns = useMemo(() => sortColumns(columnsRaw), [columnsRaw]);
   const timerText = useLiveTimerDisplay(timerExpiresAt);
 
-  const votesUsed = votedCardIds.size;
-  const votesRemaining = Math.max(0, maxVotesPerUser - votesUsed);
+  const allowNewVote = votedCardIds.size < maxVotesPerUser;
 
   const contributorCount = useMemo(() => new Set(cards.map((c) => c.ownerHash)).size, [cards]);
   const onlineLabel = Math.max(contributorCount, 1);
@@ -152,33 +151,16 @@ export default function BoardVote({
         </div>
       )}
 
-      <div className={styles.votesBanner}>
-        <div className={styles.votesRemaining}>
-          <i aria-hidden className={`fas fa-star ${styles.votesRemainingIcon}`} />
-          <span>
-            Votes remaining: {votesRemaining} / {maxVotesPerUser}
-          </span>
-        </div>
-        <div aria-hidden className={styles.voteDots}>
-          {Array.from({ length: maxVotesPerUser }, (_, i) => (
-            <div
-              key={i}
-              className={`${styles.voteDot} ${i < votesUsed ? styles.voteDotUsed : styles.voteDotAvailable}`}
-            />
-          ))}
-        </div>
-      </div>
-
       <div className={styles.boardContainer}>
         {columns.map((col, index) => (
           <VoteColumn
             key={col.value}
+            allowNewVote={allowNewVote}
             cards={cards.filter((c) => c.columnKey === col.value)}
             column={col}
             columnIndex={index}
             templateCode={templateCode}
             votedCardIds={votedCardIds}
-            votesRemaining={votesRemaining}
             onVoteToggle={onVoteToggle}
           />
         ))}
@@ -188,13 +170,13 @@ export default function BoardVote({
 }
 
 function VoteColumn({
+  allowNewVote,
   cards,
   column,
   columnIndex,
   onVoteToggle,
   templateCode,
   votedCardIds,
-  votesRemaining,
 }: VoteColumnProps) {
   const accent = getColumnAccentColor(column, templateCode, columnIndex);
   const emoji = getColumnEmoji(templateCode, columnIndex);
@@ -213,9 +195,9 @@ function VoteColumn({
         {cards.map((card) => (
           <VotePhaseCard
             key={card.id}
+            allowNewVote={allowNewVote}
             card={card}
             hasVoted={votedCardIds.has(card.id)}
-            votesRemaining={votesRemaining}
             onVoteToggle={onVoteToggle}
           />
         ))}
@@ -229,10 +211,10 @@ function VoteColumn({
   );
 }
 
-function VotePhaseCard({ card, hasVoted, onVoteToggle, votesRemaining }: VotePhaseCardProps) {
+function VotePhaseCard({ allowNewVote, card, hasVoted, onVoteToggle }: VotePhaseCardProps) {
   const [busy, setBusy] = useState(false);
 
-  const canAddVote = !hasVoted && votesRemaining > 0;
+  const canAddVote = !hasVoted && allowNewVote;
   const disabled = !hasVoted && !canAddVote;
 
   const handleClick = async () => {
