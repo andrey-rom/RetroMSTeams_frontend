@@ -7,10 +7,10 @@ import "./App.css";
 import AppLayout from "./layout/AppLayout.tsx";
 
 export default function App() {
-  const { isInTeams, isLoading } = useTeamsContext();
+  const { context, isInTeams, isLoading } = useTeamsContext();
   const [activeSessionId, setActiveSessionId] = useState<null | string>(null);
 
-  if (isLoading) {
+  if (isLoading || !context) {
     return (
       <div className="App">
         <p>Loading...</p>
@@ -27,7 +27,7 @@ export default function App() {
           {activeSessionId ? (
             <BoardPage sessionId={activeSessionId} onBack={() => setActiveSessionId(null)} />
           ) : (
-            <ConfigPage onSessionOpen={setActiveSessionId} />
+            <ConfigPage teamsContext={context} onSessionOpen={setActiveSessionId} />
           )}
         </div>
       </AppLayout>

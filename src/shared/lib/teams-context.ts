@@ -58,3 +58,17 @@ export function getMockContext(): microsoftTeams.app.Context {
     },
   } as microsoftTeams.app.Context;
 }
+
+/**
+ * IDs the backend uses to scope sessions to a Teams team and channel (same
+ * values must be sent on create and implied when listing session history).
+ */
+export function getTeamsSessionScope(context: microsoftTeams.app.Context): {
+  msChannelId: string;
+  msTeamsId: string;
+} {
+  const msChannelId = context.channel?.id ?? "";
+  const msTeamsId = context.team?.internalId ?? context.team?.groupId ?? "";
+
+  return { msChannelId, msTeamsId };
+}
