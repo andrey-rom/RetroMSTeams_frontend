@@ -10,12 +10,14 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
 
 type EventHandler = (...args: unknown[]) => void;
 
-export function useSocket(sessionId: string | null) {
-  const socketRef = useRef<Socket | null>(null);
+export function useSocket(sessionId: null | string) {
+  const socketRef = useRef<null | Socket>(null);
   const handlersRef = useRef<Map<string, EventHandler>>(new Map());
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      return;
+    }
 
     const socket = io(SOCKET_URL, {
       auth: { userId: getUserId() },
@@ -42,6 +44,7 @@ export function useSocket(sessionId: string | null) {
   const on = useCallback((event: string, handler: EventHandler) => {
     // If a handler already exists for this event, remove it first to prevent duplicates
     const oldHandler = handlersRef.current.get(event);
+
     if (oldHandler) {
       socketRef.current?.off(event, oldHandler);
     }
@@ -53,11 +56,12 @@ export function useSocket(sessionId: string | null) {
 
   const off = useCallback((event: string) => {
     const handler = handlersRef.current.get(event);
+
     if (handler) {
       socketRef.current?.off(event, handler);
       handlersRef.current.delete(event);
     }
   }, []);
 
-  return { on, off };
+  return { off, on };
 }

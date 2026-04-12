@@ -6,9 +6,9 @@ import {
   type SessionSummary,
   type Card,
   type TemplateValue,
-} from "../lib/api-client";
-import { useSocket } from "../hooks/useSocket";
-import CountdownTimer from "../components/CountdownTimer";
+} from "../shared/lib/api-client";
+import { useSocket } from "../shared/hooks/useSocket";
+import CountdownTimer from "../shared/components/CountdownTimer";
 
 interface BoardPageProps {
   sessionId: string;
@@ -81,9 +81,7 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
 
     const handlePhaseChanged = (raw: unknown) => {
       const { phase } = raw as { phase: string };
-      setSession((prev) =>
-        prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev,
-      );
+      setSession((prev) => (prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev));
       setTimerExpired(false);
       setGraceActive(false);
       setGraceUsedColumns(new Set());
@@ -94,31 +92,23 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         cardId: string;
         votesCount: number;
       };
-      setCards((prev) =>
-        prev.map((c) => (c.id === cardId ? { ...c, votesCount } : c)),
-      );
+      setCards((prev) => prev.map((c) => (c.id === cardId ? { ...c, votesCount } : c)));
     };
 
     const handleTimerStarted = (raw: unknown) => {
       const { timerExpiresAt } = raw as { timerExpiresAt: string };
-      setSession((prev) =>
-        prev ? { ...prev, timerExpiresAt } : prev,
-      );
+      setSession((prev) => (prev ? { ...prev, timerExpiresAt } : prev));
       setTimerExpired(false);
     };
 
     const handleTimerExpired = () => {
-      setSession((prev) =>
-        prev ? { ...prev, timerExpiresAt: null } : prev,
-      );
+      setSession((prev) => (prev ? { ...prev, timerExpiresAt: null } : prev));
       setTimerExpired(true);
     };
 
     const handleCollectGrace = (raw: unknown) => {
       const { collectGraceAt } = raw as { collectGraceAt: string };
-      setSession((prev) =>
-        prev ? { ...prev, timerExpiresAt: null, collectGraceAt } : prev,
-      );
+      setSession((prev) => (prev ? { ...prev, timerExpiresAt: null, collectGraceAt } : prev));
       setGraceActive(true);
       setGraceUsedColumns(new Set());
     };
@@ -216,49 +206,33 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
         {isModerator && <span className="moderator-badge">Moderator</span>}
 
         {isModerator && phase === "collect" && collectTimerNotStarted && (
-          <button
-            className="phase-advance-btn start-retro-btn"
-            onClick={handleStartCollect}
-          >
+          <button className="phase-advance-btn start-retro-btn" onClick={handleStartCollect}>
             Start Retrospective
           </button>
         )}
         {isModerator && phase === "collect" && !collectTimerNotStarted && (
-          <button
-            className="phase-advance-btn"
-            onClick={() => handleAdvancePhase("vote")}
-          >
+          <button className="phase-advance-btn" onClick={() => handleAdvancePhase("vote")}>
             Start Voting &rarr;
           </button>
         )}
         {isModerator && phase === "vote" && (
-          <button
-            className="phase-advance-btn"
-            onClick={() => handleAdvancePhase("summary")}
-          >
+          <button className="phase-advance-btn" onClick={() => handleAdvancePhase("summary")}>
             End Voting &rarr;
           </button>
         )}
         {phase === "summary" && isModerator && !session.reportMessageId && (
-          <button
-            className="phase-advance-btn publish-btn"
-            onClick={handlePublish}
-          >
+          <button className="phase-advance-btn publish-btn" onClick={handlePublish}>
             Publish to Teams
           </button>
         )}
-        {phase === "summary" && session.reportMessageId && (
-          <span className="phase-done-label">Published</span>
-        )}
+        {phase === "summary" && session.reportMessageId && <span className="phase-done-label">Published</span>}
         {phase === "summary" && !isModerator && !session.reportMessageId && (
           <span className="phase-done-label">Session complete</span>
         )}
       </div>
 
       {!isModerator && phase === "collect" && collectTimerNotStarted && (
-        <div className="waiting-banner">
-          Waiting for moderator to start the retrospective...
-        </div>
+        <div className="waiting-banner">Waiting for moderator to start the retrospective...</div>
       )}
 
       {graceActive && phase === "collect" && (
@@ -269,7 +243,9 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
 
       {timerExpired && phase === "vote" && (
         <div className="timer-expired-banner">
-          <span>{isModerator ? "Vote timer is up! End voting when ready." : "Vote timer is up! Waiting for moderator."}</span>
+          <span>
+            {isModerator ? "Vote timer is up! End voting when ready." : "Vote timer is up! Waiting for moderator."}
+          </span>
           <button className="timer-dismiss-btn" onClick={handleDismissExpired}>
             Dismiss
           </button>
@@ -279,10 +255,7 @@ export default function BoardPage({ sessionId, onBack }: BoardPageProps) {
       {phase === "summary" ? (
         <SummaryView sessionId={sessionId} columnCount={columns.length} />
       ) : (
-        <div
-          className="board-columns"
-          style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}
-        >
+        <div className="board-columns" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}>
           {columns.map((col) => (
             <Column
               key={col.value}
@@ -386,9 +359,7 @@ function Column({
         </form>
       )}
 
-      {collectPhase && graceActive && graceUsed && (
-        <p className="grace-done-label">Last card added</p>
-      )}
+      {collectPhase && graceActive && graceUsed && <p className="grace-done-label">Last card added</p>}
     </div>
   );
 }
@@ -426,7 +397,9 @@ function CardItem({ card, votePhase, hasVoted, onVoteToggle }: CardItemProps) {
       <p>{card.content}</p>
       <div className="card-footer">
         {card.votesCount > 0 && (
-          <span className="vote-count">{card.votesCount} vote{card.votesCount !== 1 ? "s" : ""}</span>
+          <span className="vote-count">
+            {card.votesCount} vote{card.votesCount !== 1 ? "s" : ""}
+          </span>
         )}
         {votePhase && (
           <button
@@ -443,18 +416,15 @@ function CardItem({ card, votePhase, hasVoted, onVoteToggle }: CardItemProps) {
   );
 }
 
-function SummaryView({
-  sessionId,
-  columnCount,
-}: {
-  sessionId: string;
-  columnCount: number;
-}) {
+function SummaryView({ sessionId, columnCount }: { sessionId: string; columnCount: number }) {
   const [summary, setSummary] = useState<SessionSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.getSummary(sessionId).then(setSummary).finally(() => setLoading(false));
+    api
+      .getSummary(sessionId)
+      .then(setSummary)
+      .finally(() => setLoading(false));
   }, [sessionId]);
 
   if (loading) return <p style={{ opacity: 0.5 }}>Loading results...</p>;
@@ -470,10 +440,7 @@ function SummaryView({
         <span>{summary.totals.participants} participants</span>
       </div>
 
-      <div
-        className="board-columns"
-        style={{ gridTemplateColumns: `repeat(${columnCount}, 1fr)` }}
-      >
+      <div className="board-columns" style={{ gridTemplateColumns: `repeat(${columnCount}, 1fr)` }}>
         {summary.columns.map((col) => (
           <div key={col.key} className="column">
             <div className="column-header" style={{ backgroundColor: col.color }}>
@@ -482,18 +449,14 @@ function SummaryView({
             </div>
             <div className="column-cards">
               {col.cards.length === 0 && (
-                <p style={{ opacity: 0.35, fontSize: "0.85rem", fontStyle: "italic" }}>
-                  No cards
-                </p>
+                <p style={{ opacity: 0.35, fontSize: "0.85rem", fontStyle: "italic" }}>No cards</p>
               )}
               {col.cards.map((card) => (
                 <div key={card.id} className="card">
                   <p>{card.content}</p>
                   {card.votesCount > 0 && (
                     <div className="card-footer">
-                      <span className="vote-count">
-                        +{card.votesCount}
-                      </span>
+                      <span className="vote-count">+{card.votesCount}</span>
                     </div>
                   )}
                 </div>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retro-Bot — UI Prototype Index</title>
+  <style>
+    :root {
+      --bg: #141414; --surface: #292929; --stroke: #404040;
+      --fg1: #ffffff; --fg2: #d6d6d6; --fg3: #adadad;
+      --brand: #5b5fc7; --brandLink: #96a0f7;
+      --green: #5ec75a; --red: #e74c4c; --yellow: #fde300; --blue: #479ef5;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--fg1); min-height: 100vh; padding: 48px 24px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 32px; margin-bottom: 8px; }
+    .subtitle { color: var(--fg3); font-size: 16px; margin-bottom: 40px; }
+    .screen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    .screen-card {
+      background: var(--surface); border: 1px solid var(--stroke); border-radius: 12px;
+      padding: 24px; transition: all 0.2s; text-decoration: none; color: inherit;
+    }
+    .screen-card:hover { border-color: var(--brand); background: #333; transform: translateY(-2px); }
+    .screen-number { font-size: 12px; color: var(--brandLink); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .screen-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .screen-desc { font-size: 14px; color: var(--fg3); line-height: 1.5; }
+    .screen-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+    .tag { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .tag-phase { background: rgba(91, 95, 199, 0.15); color: var(--brandLink); }
+    .tag-role { background: rgba(94, 199, 90, 0.1); color: var(--green); }
+    .tag-flow { background: rgba(253, 227, 0, 0.1); color: var(--yellow); }
+    .tag-responsive { background: rgba(71, 158, 245, 0.1); color: var(--blue); }
+    .info { margin-top: 40px; padding: 20px; background: var(--surface); border: 1px solid var(--stroke); border-radius: 12px; }
+    .info h3 { font-size: 16px; margin-bottom: 8px; color: var(--brandLink); }
+    .info p { font-size: 13px; color: var(--fg3); line-height: 1.6; }
+    .info code { background: #333; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Retro-Bot UI Prototypes</h1>
+    <p class="subtitle">High-fidelity reference screens for Figma — MS Teams Dark Theme, Fluent UI v9</p>
+
+    <div class="screen-grid">
+
+      <a class="screen-card" href="01-board-collect-desktop.html">
+        <div class="screen-number">Screen 01</div>
+        <div class="screen-title">Board — Collect Phase</div>
+        <div class="screen-desc">Main retro board with 3 columns (Start/Stop/Continue). Anonymous card creation, real-time updates, moderator controls.</div>
+        <div class="screen-tags">
+          <span class="tag tag-phase">F3: Collect</span>
+          <span class="tag tag-role">Participant + Moderator</span>
+          <span class="tag tag-responsive">Responsive</span>
+        </div>
+      </a>
+
+      <a class="screen-card" href="02-board-vote-desktop.html">
+        <div class="screen-number">Screen 02</div>
+        <div class="screen-title">Board — Vote Phase</div>
+        <div class="screen-desc">Same board, voting mode. Cards locked, vote buttons on each card, remaining votes indicator, disabled states.</div>
+        <div class="screen-tags">
+          <span class="tag tag-phase">F4: Vote</span>
+          <span class="tag tag-flow">Phase Transition</span>
+          <span class="tag tag-responsive">Responsive</span>
+        </div>
+      </a>
+
+      <a class="screen-card" href="03-config-session-setup.html">
+        <div class="screen-number">Screen 03</div>
+        <div class="screen-title">Session Config</div>
+        <div class="screen-desc">New session setup. Template selector (SSC, MSG, 4L) with live preview, timer settings, save as draft or start.</div>
+        <div class="screen-tags">
+          <span class="tag tag-phase">F2: Config</span>
+          <span class="tag tag-role">Moderator Only</span>
+          <span class="tag tag-responsive">Responsive</span>
+        </div>
+      </a>
+
+      <a class="screen-card" href="04-summary-results.html">
+        <div class="screen-number">Screen 04</div>
+        <div class="screen-title">Summary & Results</div>
+        <div class="screen-desc">Session results: stats overview, top-voted cards ranked, column breakdown, publish to Teams channel CTA.</div>
+        <div class="screen-tags">
+          <span class="tag tag-phase">F5: Summary</span>
+          <span class="tag tag-flow">Publish to Channel</span>
+          <span class="tag tag-responsive">Responsive</span>
+        </div>
+      </a>
+
+      <a class="screen-card" href="05-history-sessions.html">
+        <div class="screen-number">Screen 05</div>
+        <div class="screen-title">Session History</div>
+        <div class="screen-desc">List of past/active/draft sessions with search, template filter, status filter. Card counts and participation stats.</div>
+        <div class="screen-tags">
+          <span class="tag tag-phase">F6: History</span>
+          <span class="tag tag-role">All Roles</span>
+          <span class="tag tag-responsive">Responsive</span>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="info">
+      <h3>How to use these prototypes</h3>
+      <p>
+        Each screen is a self-contained HTML file using <strong>Fluent UI v9 design tokens</strong> (Teams Dark theme).
+        Open each file in a browser to see the full interactive prototype.
+        Use these as pixel-perfect references when building your Figma frames.
+      </p>
+      <p style="margin-top:8px">
+        <strong>Design tokens:</strong> All colors, spacing, typography, and border-radius values use CSS custom properties
+        matching Fluent UI v9 naming. Resize the browser window below <code>768px</code> to see the mobile responsive layout.
+      </p>
+      <p style="margin-top:8px">
+        <strong>Coverage:</strong> 5 screens (4 unique + 1 phase variant) across 5 Epics (F2–F6).
+        Exceeds the university requirement of minimum 4 unique screens.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
