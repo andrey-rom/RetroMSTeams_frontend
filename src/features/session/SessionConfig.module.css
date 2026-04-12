@@ -20,22 +20,19 @@
   color: #fff;
 }
 
-.btnPrimary:hover {
+.btnPrimary:hover:not(:disabled) {
   background: var(--colorBrandBackgroundHover);
 }
 
-.btnSubtle {
-  background: transparent;
-  color: var(--colorNeutralForeground2);
-  border: 1px solid var(--colorNeutralStroke1);
-}
-
-.btnSubtle:hover {
-  background: var(--colorNeutralBackgroundHover);
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .configContent {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   justify-content: center;
   padding: var(--spacingXXXL) var(--spacingXL);
@@ -270,7 +267,7 @@
 
 .btnLg {
   padding: 12px 32px;
-  font-size: 16px;
+  font-size: var(--fontSizeBase400);
   border-radius: var(--borderRadiusM);
 }
 

@@ -143,15 +143,14 @@ export default function SessionConfig({ onSessionOpen }: SessionConfigProps) {
             </div>
             {createSessionMutation.error && <p className={styles.errorText}>{createSessionMutation.error.message}</p>}
             <div className={styles.formActions}>
-              <button className={`${styles.btn} ${styles.btnSubtle} ${styles.btnLg}`}>
-                <i className="fas fa-floppy-disk" /> Save as Draft
-              </button>
               <button
                 className={`${styles.btn} ${styles.btnPrimary} ${styles.btnLg}`}
                 disabled={!title.trim() || createSessionMutation.isPending}
+                type="button"
                 onClick={handleSubmit}
               >
-                <i className="fas fa-play" /> {createSessionMutation.isPending ? "Starting..." : "Start Session"}
+                <i aria-hidden className="fas fa-play" />
+                {createSessionMutation.isPending ? "Starting..." : "Start Session"}
               </button>
             </div>
           </>
