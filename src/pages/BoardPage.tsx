@@ -6,10 +6,11 @@ import { useMyOwnerHash } from "../features/board/hooks/useMyOwnerHash";
 
 interface BoardPageProps {
   onBack: () => void;
+  onExitToHistory: () => void;
   sessionId: string;
 }
 
-export default function BoardPage({ onBack, sessionId }: BoardPageProps) {
+export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardPageProps) {
   const [session, setSession] = useState<null | Session>(null);
   const [cards, setCards] = useState<Card[]>([]);
   const [votedCardIds, setVotedCardIds] = useState<Set<string>>(new Set());
@@ -232,6 +233,7 @@ export default function BoardPage({ onBack, sessionId }: BoardPageProps) {
       onCreateCard={handleCreateCard}
       onDeleteCard={handleDeleteCard}
       onDismissTimerExpired={handleDismissTimerExpired}
+      onExitToHistory={onExitToHistory}
       onGraceCardAdded={onGraceCardAdded}
       onPublish={handlePublish}
       onStartCollect={handleStartCollect}

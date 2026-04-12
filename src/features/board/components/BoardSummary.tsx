@@ -15,6 +15,7 @@ import type { Session } from "../../../shared/lib/api-client.ts";
 export interface BoardSummaryDesktopProps {
   isModerator: boolean;
   onBack: () => void;
+  onExitToHistory: () => void;
   onPublish: () => void;
   session: Session;
   sessionId: string;
@@ -29,7 +30,14 @@ type RankedCard = {
   votesCount: number;
 };
 
-export default function BoardSummary({ isModerator, onBack, onPublish, session, sessionId }: BoardSummaryDesktopProps) {
+export default function BoardSummary({
+  isModerator,
+  onBack,
+  onExitToHistory,
+  onPublish,
+  session,
+  sessionId,
+}: BoardSummaryDesktopProps) {
   const { data: summary, error, isError, isPending } = useSessionSummaryQuery(sessionId);
 
   const templateCode = session.templateType?.code ?? "SSC";
@@ -103,6 +111,14 @@ export default function BoardSummary({ isModerator, onBack, onPublish, session, 
         </div>
 
         <div className={styles.headerRight}>
+          <button
+            aria-label="Back to session history"
+            className={`${styles.btn} ${styles.btnSubtle} ${styles.headerHistoryBtn}`}
+            type="button"
+            onClick={onExitToHistory}
+          >
+            <i aria-hidden className="fas fa-clock-rotate-left" /> History
+          </button>
           <span className={styles.sessionComplete}>
             <i aria-hidden className="fas fa-check-circle" /> Session Complete
           </span>

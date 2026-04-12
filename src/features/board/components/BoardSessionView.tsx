@@ -16,6 +16,7 @@ export interface BoardSessionViewProps {
   onCreateCard: (columnKey: string, content: string) => Promise<void>;
   onDeleteCard: (cardId: string) => Promise<void>;
   onDismissTimerExpired: () => void;
+  onExitToHistory: () => void;
   onGraceCardAdded: (columnKey: string) => void;
   onPublish: () => Promise<void> | void;
   onStartCollect: () => void;
@@ -39,6 +40,7 @@ export default function BoardSessionView({
   onCreateCard,
   onDeleteCard,
   onDismissTimerExpired,
+  onExitToHistory,
   onGraceCardAdded,
   onPublish,
   onStartCollect,
@@ -91,6 +93,7 @@ export default function BoardSessionView({
             session={session}
             sessionId={sessionId}
             onBack={onBack}
+            onExitToHistory={onExitToHistory}
             onPublish={onPublish}
           />
         </div>

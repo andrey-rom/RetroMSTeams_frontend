@@ -1,25 +1,24 @@
-import { useState } from "react";
 import SessionConfig from "../features/session/SessionConfig";
 import SessionConfigShell, { type SessionConfigPanel } from "../features/session/SessionConfigShell";
 import SessionHistory from "../features/session/SessionHistory.tsx";
 import type * as microsoftTeams from "@microsoft/teams-js";
 
 interface ConfigPageProps {
+  onPanelChange: (panel: SessionConfigPanel) => void;
   onSessionOpen: (sessionId: string) => void;
+  panel: SessionConfigPanel;
   teamsContext: microsoftTeams.app.Context;
 }
 
-export default function ConfigPage({ onSessionOpen, teamsContext }: ConfigPageProps) {
-  const [panel, setPanel] = useState<SessionConfigPanel>("config");
-
+export default function ConfigPage({ onPanelChange, onSessionOpen, panel, teamsContext }: ConfigPageProps) {
   return (
     <SessionConfigShell
       panel={panel}
       onBackToConfig={() => {
-        setPanel("config");
+        onPanelChange("config");
       }}
       onOpenHistory={() => {
-        setPanel("history");
+        onPanelChange("history");
       }}
     >
       {panel === "config" ? (
