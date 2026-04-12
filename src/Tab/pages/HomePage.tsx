@@ -28,11 +28,11 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
 
     setCreating(true);
     try {
-      const collectSec = collectTimer ? parseInt(collectTimer, 10) : undefined;
-      const voteSec = voteTimer ? parseInt(voteTimer, 10) : undefined;
+      const collectMin = collectTimer ? parseInt(collectTimer, 10) : undefined;
+      const voteMin = voteTimer ? parseInt(voteTimer, 10) : undefined;
       const session = await api.createSession(title.trim(), selected.id, {
-        collectTimerSeconds: collectSec && collectSec >= 30 ? collectSec : undefined,
-        voteTimerSeconds: voteSec && voteSec >= 30 ? voteSec : undefined,
+        collectTimerSeconds: collectMin && collectMin >= 1 ? collectMin * 60 : undefined,
+        voteTimerSeconds: voteMin && voteMin >= 1 ? voteMin * 60 : undefined,
       });
       onSessionOpen(session.id);
     } catch (err: unknown) {
@@ -86,23 +86,23 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
           />
           <div className="timer-config-row">
             <div className="timer-config-field">
-              <label>Collect timer (sec)</label>
+              <label>Collect timer (min)</label>
               <input
                 type="number"
                 placeholder="off"
-                min={30}
-                max={3600}
+                min={1}
+                max={60}
                 value={collectTimer}
                 onChange={(e) => setCollectTimer(e.target.value)}
               />
             </div>
             <div className="timer-config-field">
-              <label>Vote timer (sec)</label>
+              <label>Vote timer (min)</label>
               <input
                 type="number"
                 placeholder="off"
-                min={30}
-                max={3600}
+                min={1}
+                max={60}
                 value={voteTimer}
                 onChange={(e) => setVoteTimer(e.target.value)}
               />
