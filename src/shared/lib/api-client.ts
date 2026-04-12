@@ -28,6 +28,7 @@ export interface Session {
   timerExpiresAt: null | string;
   title: string;
   voteTimerSeconds: null | number;
+  updatedAt?: string;
 }
 
 export interface Template {

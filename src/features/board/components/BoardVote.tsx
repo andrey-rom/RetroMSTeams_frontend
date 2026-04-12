@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { api } from "../../../shared/lib/api-client.ts";
 import { getColumnAccentColor, getColumnEmoji, sortColumns } from "../helpers.ts";
 import { useLiveTimerDisplay } from "../hooks/useLiveTimerDisplay.ts";
-import styles from "./BoardVoteDesktop.module.css";
+import styles from "./BoardVote.module.css";
 import type { Card, TemplateValue } from "../../../shared/lib/api-client.ts";
 
 export interface BoardVoteDesktopProps {
@@ -38,7 +38,7 @@ interface VotePhaseCardProps {
   votesRemaining: number;
 }
 
-export default function BoardVoteDesktop({
+export default function BoardVote({
   cards,
   columns: columnsRaw,
   isModerator,

@@ -1,4 +1,4 @@
-export { default as BoardCollectDesktop } from "./components/BoardCollectDesktop";
-export { default as BoardVoteDesktop } from "./components/BoardVoteDesktop";
+export { default as BoardCollectDesktop } from "./components/BoardCollect.tsx";
+export { default as BoardVoteDesktop } from "./components/BoardVote.tsx";
 export { default as BoardSessionView } from "./components/BoardSessionView";
-export { default as BoardSummaryView } from "./components/BoardSummaryView";
+export { default as BoardSummaryDesktop } from "./components/BoardSummary.tsx";
