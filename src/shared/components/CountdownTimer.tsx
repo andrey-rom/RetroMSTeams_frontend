@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 
 interface CountdownTimerProps {
-  expiresAt: string | null;
+  expiresAt: null | string;
 }
 
 export default function CountdownTimer({ expiresAt }: CountdownTimerProps) {
-  const [remaining, setRemaining] = useState<number | null>(null);
+  const [remaining, setRemaining] = useState<null | number>(null);
 
   useEffect(() => {
     if (!expiresAt) {
       setRemaining(null);
+
       return;
     }
 
@@ -17,15 +18,19 @@ export default function CountdownTimer({ expiresAt }: CountdownTimerProps) {
 
     function tick() {
       const diff = Math.max(0, Math.round((target - Date.now()) / 1000));
+
       setRemaining(diff);
     }
 
     tick();
     const id = setInterval(tick, 1000);
+
     return () => clearInterval(id);
   }, [expiresAt]);
 
-  if (remaining === null) return null;
+  if (remaining === null) {
+    return null;
+  }
 
   const mins = Math.floor(remaining / 60);
   const secs = remaining % 60;

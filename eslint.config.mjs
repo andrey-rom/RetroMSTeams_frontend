@@ -78,8 +78,11 @@ export default [
     rules: {
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      // Legitimate data-fetch timers still use setState in effects; too noisy for this codebase.
+      "react-hooks/set-state-in-effect": "off",
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-      "react/jsx-newline": ["error", { prevent: true }],
+      // Conflicts with Prettier / import/order autofix (circular fixes); formatting handled by Prettier.
+      "react/jsx-newline": "off",
       "react/jsx-no-useless-fragment": "warn",
       "react/jsx-sort-props": [
         "error",
@@ -93,7 +96,8 @@ export default [
       "react/no-children-prop": "off",
       "react/react-in-jsx-scope": "off",
     },
-    settings: { react: { version: "detect" } },
+    // Explicit version avoids eslint-plugin-react calling context.getFilename() (removed in ESLint 10).
+    settings: { react: { version: "19.0" } },
   },
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.mjs", "**/*.cjs"],

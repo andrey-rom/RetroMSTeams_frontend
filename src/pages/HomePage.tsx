@@ -8,7 +8,7 @@ interface HomePageProps {
 export default function HomePage({ onSessionOpen }: HomePageProps) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [selected, setSelected] = useState<Template | null>(null);
+  const [selected, setSelected] = useState<null | Template>(null);
   const [title, setTitle] = useState("");
   const [collectTimer, setCollectTimer] = useState("");
   const [voteTimer, setVoteTimer] = useState("");
@@ -30,7 +30,9 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selected || !title.trim() || creating) return;
+    if (!selected || !title.trim() || creating) {
+      return;
+    }
 
     setCreating(true);
     try {
@@ -40,6 +42,7 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
         collectTimerSeconds: collectSec && collectSec >= 30 ? collectSec : undefined,
         voteTimerSeconds: voteSec && voteSec >= 30 ? voteSec : undefined,
       });
+
       onSessionOpen(session.id);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to create");
@@ -79,21 +82,21 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
       {selected && (
         <form className="create-form" onSubmit={handleCreate}>
           <input
-            type="text"
+            autoFocus
+            maxLength={200}
             placeholder="Session title, e.g. Sprint 12 Retro"
+            type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            maxLength={200}
-            autoFocus
           />
           <div className="timer-config-row">
             <div className="timer-config-field">
               <label>Collect timer (sec)</label>
               <input
-                type="number"
-                placeholder="off"
-                min={30}
                 max={3600}
+                min={30}
+                placeholder="off"
+                type="number"
                 value={collectTimer}
                 onChange={(e) => setCollectTimer(e.target.value)}
               />
@@ -101,16 +104,16 @@ export default function HomePage({ onSessionOpen }: HomePageProps) {
             <div className="timer-config-field">
               <label>Vote timer (sec)</label>
               <input
-                type="number"
-                placeholder="off"
-                min={30}
                 max={3600}
+                min={30}
+                placeholder="off"
+                type="number"
                 value={voteTimer}
                 onChange={(e) => setVoteTimer(e.target.value)}
               />
             </div>
           </div>
-          <button type="submit" disabled={!title.trim() || creating}>
+          <button disabled={!title.trim() || creating} type="submit">
             {creating ? "Creating..." : "Start Retrospective"}
           </button>
         </form>

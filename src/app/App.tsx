@@ -8,7 +8,7 @@ import AppLayout from "./layout/AppLayout.tsx";
 
 export default function App() {
   const { isInTeams, isLoading } = useTeamsContext();
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<null | string>(null);
 
   if (isLoading) {
     return (
@@ -20,14 +20,16 @@ export default function App() {
 
   return (
     <div className="App">
-      <AppLayout>
-        {!isInTeams && <div className="dev-banner">Local dev mode — Teams SDK not available</div>}
+      <AppLayout variant={activeSessionId ? "full" : "default"}>
+        <div className={activeSessionId ? "app-main-stack" : "app-main-config"}>
+          {!isInTeams && <div className="dev-banner">Local dev mode — Teams SDK not available</div>}
 
-        {activeSessionId ? (
-          <BoardPage sessionId={activeSessionId} onBack={() => setActiveSessionId(null)} />
-        ) : (
-          <ConfigPage onSessionOpen={setActiveSessionId} />
-        )}
+          {activeSessionId ? (
+            <BoardPage sessionId={activeSessionId} onBack={() => setActiveSessionId(null)} />
+          ) : (
+            <ConfigPage onSessionOpen={setActiveSessionId} />
+          )}
+        </div>
       </AppLayout>
     </div>
   );
