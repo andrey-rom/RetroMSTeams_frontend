@@ -24,7 +24,7 @@ export default function ConfigPage({ onPanelChange, onSessionOpen, panel, teamsC
       {panel === "config" ? (
         <SessionConfig teamsContext={teamsContext} onSessionOpen={onSessionOpen} />
       ) : (
-        <SessionHistory onSessionOpen={onSessionOpen} />
+        <SessionHistory onSessionOpen={onSessionOpen} channelId={teamsContext.channel?.id} />
       )}
     </SessionConfigShell>
   );

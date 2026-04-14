@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../shared/lib/api-client.ts";
 
-export function useSessionsQuery() {
+export function useSessionsQuery(channelId?: string) {
   return useQuery({
-    queryFn: () => api.getSessions(),
-    queryKey: ["sessions", "list"],
+    queryFn: () => api.getSessions(channelId),
+    queryKey: ["sessions", "list", channelId ?? ""],
   });
 }

@@ -13,11 +13,12 @@ import styles from "./SessionHistory.module.css";
 import type { Session } from "../../shared/lib/api-client.ts";
 
 export interface SessionHistoryDesktopProps {
+  channelId?: string;
   onSessionOpen: (sessionId: string) => void;
 }
 
-export default function SessionHistory({ onSessionOpen }: SessionHistoryDesktopProps) {
-  const { data: sessions = [], error, isError, isPending } = useSessionsQuery();
+export default function SessionHistory({ channelId, onSessionOpen }: SessionHistoryDesktopProps) {
+  const { data: sessions = [], error, isError, isPending } = useSessionsQuery(channelId);
   const [search, setSearch] = useState("");
   const [templateFilter, setTemplateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState<"" | HistoryUiStatus>("");
