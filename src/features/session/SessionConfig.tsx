@@ -1,17 +1,20 @@
 import { useMemo, useState } from "react";
+import { getTeamsSessionScope } from "../../shared/lib/teams-context.ts";
 import { useCreateSessionMutation, useTemplatesQuery } from "./hooks/useSessionConfig.ts";
 import styles from "./SessionConfig.module.css";
 import { getPreviewByTemplate, getTemplateIcon, mapMinutesToSeconds } from "./helpers.ts";
+import type * as microsoftTeams from "@microsoft/teams-js";
 
 interface SessionConfigProps {
   onSessionOpen: (sessionId: string) => void;
+  teamsContext: microsoftTeams.app.Context;
 }
 
-export default function SessionConfig({ onSessionOpen }: SessionConfigProps) {
+export default function SessionConfig({ onSessionOpen, teamsContext }: SessionConfigProps) {
   const { data: templates = [], error, isLoading } = useTemplatesQuery();
   const createSessionMutation = useCreateSessionMutation();
 
-  const [title, setTitle] = useState("Sprint 14 Retrospective");
+  const [title, setTitle] = useState("");
   const [collectMinutes, setCollectMinutes] = useState("10");
   const [voteMinutes, setVoteMinutes] = useState("5");
   const [selectedTemplateId, setSelectedTemplateId] = useState<null | string>(null);
@@ -28,11 +31,13 @@ export default function SessionConfig({ onSessionOpen }: SessionConfigProps) {
     }
 
     try {
+      const { msChannelId, msTeamsId } = getTeamsSessionScope(teamsContext);
+
       const created = await createSessionMutation.mutateAsync({
         collectTimerSeconds: mapMinutesToSeconds(collectMinutes),
         maxVotesPerUser: 99,
-        msChannelId: "string",
-        msTeamsId: "string",
+        msChannelId,
+        msTeamsId,
         templateTypeId: selectedTemplate.id,
         title: title.trim(),
         voteTimerSeconds: mapMinutesToSeconds(voteMinutes),

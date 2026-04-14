@@ -6,3 +6,4 @@ node_modules
 .localConfigs
 package-lock.json
 TMP
+env

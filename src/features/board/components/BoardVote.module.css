@@ -278,52 +278,6 @@
   font-size: 0.8rem;
 }
 
-.votesBanner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacingS) var(--spacingXL);
-  background: rgba(253, 227, 0, 0.08);
-  border-bottom: 1px solid rgba(253, 227, 0, 0.15);
-  flex-shrink: 0;
-  gap: var(--spacingM);
-}
-
-.votesRemaining {
-  display: flex;
-  align-items: center;
-  gap: var(--spacingS);
-  font-size: var(--fontSizeBase300);
-  font-weight: var(--fontWeightSemibold);
-}
-
-.votesRemainingIcon {
-  color: var(--colorPaletteYellowForeground1);
-}
-
-.voteDots {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px;
-  max-width: min(100%, 280px);
-}
-
-.voteDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid var(--colorPaletteYellowForeground1);
-}
-
-.voteDotUsed {
-  background: var(--colorPaletteYellowForeground1);
-}
-
-.voteDotAvailable {
-  background: transparent;
-}
-
 .boardContainer {
   flex: 1;
   display: flex;
@@ -535,8 +489,7 @@
     max-height: 50vh;
   }
 
-  .moderatorBar,
-  .votesBanner {
+  .moderatorBar {
     flex-direction: column;
     gap: var(--spacingS);
     text-align: center;

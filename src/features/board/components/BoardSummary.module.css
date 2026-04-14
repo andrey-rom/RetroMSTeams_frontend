@@ -115,6 +115,12 @@
   gap: var(--spacingM);
 }
 
+.headerHistoryBtn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: var(--fontSizeBase200);
+}
+
 .sessionComplete {
   display: inline-flex;
   align-items: center;
