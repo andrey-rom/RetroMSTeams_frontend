@@ -3,12 +3,19 @@ import { api, getUserId, type Session, type Card } from "../shared/lib/api-clien
 import { useSocket } from "../shared/hooks/useSocket";
 import BoardSessionView from "../features/board/components/BoardSessionView";
 import { useMyOwnerHash } from "../features/board/hooks/useMyOwnerHash";
+import Loader from "../shared/components/Loader";
 
 interface BoardPageProps {
   onBack: () => void;
   onExitToHistory: () => void;
   sessionId: string;
 }
+
+type PublishNotification = {
+  id: number;
+  message: string;
+  type: "error" | "success";
+};
 
 export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardPageProps) {
   const [session, setSession] = useState<null | Session>(null);
@@ -18,6 +25,11 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
   const [timerExpired, setTimerExpired] = useState(false);
   const [graceActive, setGraceActive] = useState(false);
   const [graceUsedColumns, setGraceUsedColumns] = useState<Set<string>>(new Set());
+  const [startingCollect, setStartingCollect] = useState(false);
+  const [advancingToVote, setAdvancingToVote] = useState(false);
+  const [advancingToSummary, setAdvancingToSummary] = useState(false);
+  const [publishingSummary, setPublishingSummary] = useState(false);
+  const [publishNotification, setPublishNotification] = useState<null | PublishNotification>(null);
 
   const myOwnerHash = useMyOwnerHash(sessionId);
 
@@ -147,14 +159,35 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
   }, [on, off]);
 
   const handleStartCollect = async () => {
+    if (startingCollect) {
+      return;
+    }
+
+    setStartingCollect(true);
     try {
       await api.startCollect(sessionId);
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Failed to start");
+    } finally {
+      setStartingCollect(false);
     }
   };
 
   const handleAdvancePhase = async (next: "summary" | "vote") => {
+    if (next === "vote" && advancingToVote) {
+      return;
+    }
+
+    if (next === "summary" && advancingToSummary) {
+      return;
+    }
+
+    if (next === "vote") {
+      setAdvancingToVote(true);
+    } else {
+      setAdvancingToSummary(true);
+    }
+
     try {
       const updated = await api.advancePhase(sessionId, next);
 
@@ -164,17 +197,39 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
       setGraceUsedColumns(new Set());
     } catch (err: unknown) {
       alert(err instanceof Error ? err.message : "Phase change failed");
+    } finally {
+      if (next === "vote") {
+        setAdvancingToVote(false);
+      } else {
+        setAdvancingToSummary(false);
+      }
     }
   };
 
   const handlePublish = async () => {
+    if (publishingSummary) {
+      return;
+    }
+
+    setPublishingSummary(true);
     try {
       await api.publishSummary(sessionId);
       const updated = await api.getSession(sessionId);
 
       setSession(updated);
+      setPublishNotification({
+        id: Date.now(),
+        message: "Summary published to channel successfully.",
+        type: "success",
+      });
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Publish failed");
+      setPublishNotification({
+        id: Date.now(),
+        message: err instanceof Error ? err.message : "Failed to publish summary.",
+        type: "error",
+      });
+    } finally {
+      setPublishingSummary(false);
     }
   };
 
@@ -211,20 +266,25 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
   }
 
   if (!session) {
-    return <p>Loading board...</p>;
+    return <Loader />;
   }
 
   const isModerator = session.creatorId === getUserId();
 
   return (
     <BoardSessionView
+      advancingToSummary={advancingToSummary}
+      advancingToVote={advancingToVote}
       cards={cards}
       graceActive={graceActive}
       graceUsedColumns={graceUsedColumns}
       isModerator={isModerator}
       myOwnerHash={myOwnerHash}
+      publishingSummary={publishingSummary}
+      publishNotification={publishNotification}
       session={session}
       sessionId={sessionId}
+      startingCollect={startingCollect}
       timerExpired={timerExpired}
       votedCardIds={votedCardIds}
       onAdvanceToSummary={() => void handleAdvancePhase("summary")}
@@ -236,6 +296,7 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
       onExitToHistory={onExitToHistory}
       onGraceCardAdded={onGraceCardAdded}
       onPublish={handlePublish}
+      onPublishNotificationClose={() => setPublishNotification(null)}
       onStartCollect={handleStartCollect}
       onUpdateCard={handleUpdateCard}
       onVoteToggle={handleVoteToggle}

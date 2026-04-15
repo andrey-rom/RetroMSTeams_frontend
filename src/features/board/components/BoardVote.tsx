@@ -6,6 +6,7 @@ import styles from "./BoardVote.module.css";
 import type { Card, TemplateValue } from "../../../shared/lib/api-client.ts";
 
 export interface BoardVoteDesktopProps {
+  advanceToSummaryPending: boolean;
   cards: Card[];
   columns: TemplateValue[];
   isModerator: boolean;
@@ -39,6 +40,7 @@ interface VotePhaseCardProps {
 }
 
 export default function BoardVote({
+  advanceToSummaryPending,
   cards,
   columns: columnsRaw,
   isModerator,
@@ -131,10 +133,12 @@ export default function BoardVote({
             </button>
             <button
               className={`${styles.btn} ${styles.btnPrimary} ${styles.modBtnTight}`}
+              disabled={advanceToSummaryPending}
               type="button"
               onClick={onAdvanceToSummary}
             >
-              Finish: Summary <i aria-hidden className="fas fa-arrow-right" />
+              {advanceToSummaryPending ? "Finishing..." : "Finish: Summary"}{" "}
+              <i aria-hidden className="fas fa-arrow-right" />
             </button>
           </div>
         </div>
@@ -237,6 +241,8 @@ function VotePhaseCard({ allowNewVote, card, hasVoted, onVoteToggle }: VotePhase
     }
   };
 
+  const buttonLabel = hasVoted ? (busy ? "Removing..." : "Voted") : busy ? "Voting..." : "Vote";
+
   return (
     <div className={styles.card}>
       <div className={styles.cardContent}>{card.content}</div>
@@ -253,11 +259,11 @@ function VotePhaseCard({ allowNewVote, card, hasVoted, onVoteToggle }: VotePhase
         >
           {hasVoted ? (
             <>
-              <i aria-hidden className="fas fa-thumbs-up" /> Voted
+              <i aria-hidden className="fas fa-thumbs-up" /> {buttonLabel}
             </>
           ) : (
             <>
-              <i aria-hidden className="far fa-thumbs-up" /> {busy ? "…" : "Vote"}
+              <i aria-hidden className="far fa-thumbs-up" /> {buttonLabel}
             </>
           )}
         </button>

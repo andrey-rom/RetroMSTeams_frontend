@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import Loader from "../../shared/components/Loader";
 
 import {
   type HistoryUiStatus,
@@ -30,7 +31,7 @@ export default function SessionHistory({ onSessionOpen }: SessionHistoryDesktopP
   if (isPending) {
     return (
       <div className={styles.historyRoot}>
-        <div className={styles.loading}>Loading sessions…</div>
+        <Loader />
       </div>
     );
   }
