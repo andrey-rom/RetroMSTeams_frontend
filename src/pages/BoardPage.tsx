@@ -88,12 +88,30 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
     };
 
     const handlePhaseChanged = (raw: unknown) => {
-      const { phase } = raw as { phase: string };
+      const { phase, timerExpiresAt } = raw as { phase: string; timerExpiresAt?: null | string };
 
-      setSession((prev) => (prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev));
+      setSession((prev) =>
+        prev
+          ? {
+              ...prev,
+              collectGraceAt: phase === "collect" ? prev.collectGraceAt : null,
+              currentPhase: phase,
+              timerExpiresAt: timerExpiresAt ?? prev.timerExpiresAt,
+            }
+          : prev,
+      );
       setTimerExpired(false);
       setGraceActive(false);
       setGraceUsedColumns(new Set());
+
+      // Some phase-change events do not include timer data.
+      // Sync from backend so Vote timer is always correct for all clients.
+      void api
+        .getSession(sessionId)
+        .then((latest) => {
+          setSession(latest);
+        })
+        .catch(() => {});
     };
 
     const handleVoteUpdated = (raw: unknown) => {
@@ -144,7 +162,7 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
       off("timer:expired");
       off("collect:grace");
     };
-  }, [on, off]);
+  }, [on, off, sessionId]);
 
   const handleStartCollect = async () => {
     try {

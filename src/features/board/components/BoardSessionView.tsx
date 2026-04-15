@@ -65,6 +65,7 @@ export default function BoardSessionView({
             cards={cards}
             collectTimerConfigured={collectTimerConfigured}
             collectTimerNotStarted={collectTimerNotStarted}
+            collectTimerSeconds={session.collectTimerSeconds}
             columns={columns}
             graceActive={graceActive}
             graceBanner={graceActive}

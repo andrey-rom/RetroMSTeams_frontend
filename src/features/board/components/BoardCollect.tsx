@@ -8,6 +8,7 @@ export interface BoardCollectDesktopProps {
   cards: Card[];
   collectTimerConfigured: boolean;
   collectTimerNotStarted: boolean;
+  collectTimerSeconds: null | number;
   columns: TemplateValue[];
   graceActive: boolean;
   graceBanner: boolean;
@@ -58,6 +59,7 @@ export default function BoardCollect({
   cards,
   collectTimerConfigured,
   collectTimerNotStarted,
+  collectTimerSeconds,
   columns: columnsRaw,
   graceActive,
   graceBanner,
@@ -77,7 +79,11 @@ export default function BoardCollect({
   waitingForModerator,
 }: BoardCollectDesktopProps) {
   const columns = useMemo(() => sortColumns(columnsRaw), [columnsRaw]);
-  const timerText = useLiveTimerDisplay(timerExpiresAt);
+  const liveTimerText = useLiveTimerDisplay(timerExpiresAt);
+  const timerText =
+    collectTimerNotStarted && collectTimerSeconds
+      ? `${String(Math.floor(collectTimerSeconds / 60)).padStart(2, "0")}:${String(collectTimerSeconds % 60).padStart(2, "0")}`
+      : liveTimerText;
 
   const contributorCount = useMemo(() => new Set(cards.map((c) => c.ownerHash)).size, [cards]);
   const onlineLabel = Math.max(contributorCount, 1);
