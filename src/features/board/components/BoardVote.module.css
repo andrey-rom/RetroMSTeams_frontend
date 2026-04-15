@@ -152,6 +152,15 @@
   color: var(--colorNeutralForeground1);
 }
 
+.timerDisplayExpired {
+  background: rgba(244, 67, 54, 0.22);
+}
+
+.timerIconExpired,
+.timerValueExpired {
+  color: #ff6b6b;
+}
+
 .headerRight {
   display: flex;
   align-items: center;
@@ -258,24 +267,30 @@
 .timerExpiredBanner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 1rem;
+  justify-content: center;
   background: rgba(244, 67, 54, 0.2);
   border-bottom: 1px solid #f44336;
+  padding: 0.5rem 1rem;
   color: #ff6b6b;
   font-weight: 600;
   font-size: 0.9rem;
   flex-shrink: 0;
+  gap: 2em;
 }
 
 .timerDismissBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: none;
   color: #fff;
-  border-radius: 4px;
-  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  padding: 0;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
 }
 
 .boardContainer {
