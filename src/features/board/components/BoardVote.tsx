@@ -13,12 +13,16 @@ export interface BoardVoteDesktopProps {
   onAdvanceToSummary: () => void;
   onBack: () => void;
   onDismissTimerExpired: () => void;
+  onToggleTimerPause: () => void;
   onVoteToggle: (cardId: string, voted: boolean) => void;
+  pausedRemainingSeconds: null | number;
   sessionTitle: string;
   templateCode: string;
   timerExpired: boolean;
   timerExpiresAt: null | string;
+  timerPaused: boolean;
   votedCardIds: Set<string>;
+  voteTimerElapsed: boolean;
 }
 
 interface VoteColumnProps {
@@ -46,15 +50,24 @@ export default function BoardVote({
   onAdvanceToSummary,
   onBack,
   onDismissTimerExpired,
+  onToggleTimerPause,
   onVoteToggle,
+  pausedRemainingSeconds,
   sessionTitle,
   templateCode,
   timerExpired,
   timerExpiresAt,
+  timerPaused,
   votedCardIds,
+  voteTimerElapsed,
 }: BoardVoteDesktopProps) {
   const columns = useMemo(() => sortColumns(columnsRaw), [columnsRaw]);
-  const timerText = useLiveTimerDisplay(timerExpiresAt);
+  const liveTimerText = useLiveTimerDisplay(timerExpiresAt);
+  const pausedTimerText =
+    pausedRemainingSeconds === null
+      ? "--:--"
+      : `${String(Math.floor(pausedRemainingSeconds / 60)).padStart(2, "0")}:${String(pausedRemainingSeconds % 60).padStart(2, "0")}`;
+  const timerText = voteTimerElapsed ? "00:00" : timerPaused ? pausedTimerText : liveTimerText;
 
   const allowNewVote = votedCardIds.size < maxVotesPerUser;
 
@@ -96,9 +109,14 @@ export default function BoardVote({
             </div>
           </div>
 
-          <div className={styles.timerDisplay}>
-            <i aria-hidden className={`fas fa-clock ${styles.timerIcon}`} />
-            <span className={styles.timerValue}>{timerText}</span>
+          <div className={`${styles.timerDisplay} ${voteTimerElapsed ? styles.timerDisplayExpired : ""}`}>
+            <i
+              aria-hidden
+              className={`fas fa-clock ${styles.timerIcon} ${voteTimerElapsed ? styles.timerIconExpired : ""}`}
+            />
+            <span className={`${styles.timerValue} ${voteTimerElapsed ? styles.timerValueExpired : ""}`}>
+              {timerText}
+            </span>
           </div>
         </div>
 
@@ -122,12 +140,12 @@ export default function BoardVote({
           </div>
           <div className={styles.moderatorBarRight}>
             <button
-              disabled
               className={`${styles.btn} ${styles.btnSubtle} ${styles.modBtnTight}`}
-              title="Pause is not available yet"
               type="button"
+              onClick={onToggleTimerPause}
             >
-              <i aria-hidden className="fas fa-pause" /> Pause
+              <i aria-hidden className={`fas ${timerPaused ? "fa-play" : "fa-pause"}`} />{" "}
+              {timerPaused ? "Resume" : "Pause"}
             </button>
             <button
               className={`${styles.btn} ${styles.btnPrimary} ${styles.modBtnTight}`}
@@ -146,7 +164,7 @@ export default function BoardVote({
             {isModerator ? "Vote timer is up! End voting when ready." : "Vote timer is up! Waiting for moderator."}
           </span>
           <button className={styles.timerDismissBtn} type="button" onClick={onDismissTimerExpired}>
-            Dismiss
+            <i aria-hidden className="fas fa-xmark" />
           </button>
         </div>
       )}
