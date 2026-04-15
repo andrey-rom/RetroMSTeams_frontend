@@ -130,7 +130,8 @@ export const api = {
 
   getSession: (id: string) => request<Session>(`/sessions/${id}`),
 
-  getSessions: () => request<Session[]>("/sessions"),
+  getSessions: (channelId?: string) =>
+    request<Session[]>(channelId ? `/sessions?channelId=${encodeURIComponent(channelId)}` : "/sessions"),
 
   getSummary: (sessionId: string) => request<SessionSummary>(`/sessions/${sessionId}/summary`),
 
