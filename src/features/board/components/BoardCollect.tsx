@@ -5,6 +5,7 @@ import styles from "./BoardCollect.module.css";
 import type { Card, TemplateValue } from "../../../shared/lib/api-client.ts";
 
 export interface BoardCollectDesktopProps {
+  advanceToVotePending: boolean;
   cards: Card[];
   collectTimerConfigured: boolean;
   collectTimerNotStarted: boolean;
@@ -26,6 +27,7 @@ export interface BoardCollectDesktopProps {
   onUpdateCard: (cardId: string, content: string) => Promise<void>;
   pausedRemainingSeconds: null | number;
   sessionTitle: string;
+  startCollectPending: boolean;
   templateCode: string;
   timerExpired: boolean;
   timerExpiresAt: null | string;
@@ -61,6 +63,7 @@ interface ColumnProps {
 }
 
 export default function BoardCollect({
+  advanceToVotePending,
   cards,
   collectTimerConfigured,
   collectTimerNotStarted,
@@ -82,6 +85,7 @@ export default function BoardCollect({
   onUpdateCard,
   pausedRemainingSeconds,
   sessionTitle,
+  startCollectPending,
   templateCode,
   timerExpired,
   timerExpiresAt,
@@ -186,10 +190,11 @@ export default function BoardCollect({
             {collectTimerNotStarted ? (
               <button
                 className={`${styles.btn} ${styles.btnPrimary} ${styles.modBtnTight}`}
+                disabled={startCollectPending}
                 type="button"
                 onClick={onStartCollect}
               >
-                <i aria-hidden className="fas fa-play" /> Start Retrospective
+                <i aria-hidden className="fas fa-play" /> {startCollectPending ? "Starting..." : "Start Retrospective"}
               </button>
             ) : (
               <>
@@ -203,10 +208,12 @@ export default function BoardCollect({
                 </button>
                 <button
                   className={`${styles.btn} ${styles.btnPrimary} ${styles.modBtnTight}`}
+                  disabled={advanceToVotePending}
                   type="button"
                   onClick={onAdvanceToVote}
                 >
-                  Next: Voting <i aria-hidden className="fas fa-arrow-right" />
+                  {advanceToVotePending ? "Advancing..." : "Next: Voting"}{" "}
+                  <i aria-hidden className="fas fa-arrow-right" />
                 </button>
               </>
             )}
@@ -267,6 +274,7 @@ function BoardCollectCard({
   onEditStart,
 }: CollectCardProps) {
   const [draft, setDraft] = useState(card.content);
+  const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -288,6 +296,19 @@ function BoardCollectCard({
       await onEditSave(t);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleting) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      await onDelete();
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -340,9 +361,10 @@ function BoardCollectCard({
                 </button>
                 <button
                   className={`${styles.cardActionBtn} ${styles.cardActionBtnDelete}`}
-                  title="Delete"
+                  disabled={deleting}
+                  title={deleting ? "Deleting..." : "Delete"}
                   type="button"
-                  onClick={() => void onDelete()}
+                  onClick={() => void handleDelete()}
                 >
                   <i className="fas fa-trash" />
                 </button>

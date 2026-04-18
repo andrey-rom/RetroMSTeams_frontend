@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { getTeamsSessionScope } from "../../shared/lib/teams-context.ts";
+import Loader from "../../shared/components/Loader";
 import { useCreateSessionMutation, useTemplatesQuery } from "./hooks/useSessionConfig.ts";
 import styles from "./SessionConfig.module.css";
 import { getPreviewByTemplate, getTemplateIcon, mapMinutesToSeconds } from "./helpers.ts";
@@ -59,7 +60,7 @@ export default function SessionConfig({ onSessionOpen, teamsContext }: SessionCo
           <h1>New Retrospective</h1>
           <p>Set up a session for your team to reflect and improve</p>
         </div>
-        {isLoading && <p>Loading templates...</p>}
+        {isLoading && <Loader />}
         {error && <p className={styles.errorText}>Failed to load templates.</p>}
         {!isLoading && templates.length > 0 && (
           <>

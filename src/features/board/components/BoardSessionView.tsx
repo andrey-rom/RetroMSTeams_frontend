@@ -5,6 +5,8 @@ import styles from "./BoardSessionView.module.css";
 import type { Session, Card, TemplateValue } from "../../../shared/lib/api-client.ts";
 
 export interface BoardSessionViewProps {
+  advancingToSummary: boolean;
+  advancingToVote: boolean;
   cards: Card[];
   graceActive: boolean;
   graceBannerVisible: boolean;
@@ -21,13 +23,17 @@ export interface BoardSessionViewProps {
   onExitToHistory: () => void;
   onGraceCardAdded: (columnKey: string) => void;
   onPublish: () => Promise<void> | void;
+  onPublishNotificationClose: () => void;
   onStartCollect: () => void;
   onToggleTimerPause: () => void;
   onUpdateCard: (cardId: string, content: string) => Promise<void>;
   onVoteToggle: (cardId: string, voted: boolean) => void;
+  publishingSummary: boolean;
+  publishNotification: null | { id: number; message: string; type: "error" | "success" };
   pausedRemainingSeconds: null | number;
   session: Session;
   sessionId: string;
+  startingCollect: boolean;
   timerExpired: boolean;
   timerPaused: boolean;
   votedCardIds: Set<string>;
@@ -35,6 +41,8 @@ export interface BoardSessionViewProps {
 }
 
 export default function BoardSessionView({
+  advancingToSummary,
+  advancingToVote,
   cards,
   graceActive,
   graceBannerVisible,
@@ -51,13 +59,17 @@ export default function BoardSessionView({
   onExitToHistory,
   onGraceCardAdded,
   onPublish,
+  onPublishNotificationClose,
   onStartCollect,
   onToggleTimerPause,
   onUpdateCard,
   onVoteToggle,
+  publishingSummary,
+  publishNotification,
   pausedRemainingSeconds,
   session,
   sessionId,
+  startingCollect,
   timerExpired,
   timerPaused,
   votedCardIds,
@@ -74,6 +86,7 @@ export default function BoardSessionView({
       return (
         <div className={styles.root}>
           <BoardCollect
+            advanceToVotePending={advancingToVote}
             cards={cards}
             collectTimerConfigured={collectTimerConfigured}
             collectTimerNotStarted={collectTimerNotStarted}
@@ -86,6 +99,7 @@ export default function BoardSessionView({
             myOwnerHash={myOwnerHash}
             pausedRemainingSeconds={pausedRemainingSeconds}
             sessionTitle={session.title}
+            startCollectPending={startingCollect}
             templateCode={templateCode}
             timerExpired={graceActive}
             timerExpiresAt={session.timerExpiresAt}
@@ -108,11 +122,14 @@ export default function BoardSessionView({
         <div className={styles.root}>
           <BoardSummary
             isModerator={isModerator}
+            publishNotification={publishNotification}
+            publishPending={publishingSummary}
             session={session}
             sessionId={sessionId}
             onBack={onBack}
             onExitToHistory={onExitToHistory}
             onPublish={onPublish}
+            onPublishNotificationClose={onPublishNotificationClose}
           />
         </div>
       );
@@ -120,6 +137,7 @@ export default function BoardSessionView({
       return (
         <div className={styles.root}>
           <BoardVote
+            advanceToSummaryPending={advancingToSummary}
             cards={cards}
             columns={columns}
             isModerator={isModerator}

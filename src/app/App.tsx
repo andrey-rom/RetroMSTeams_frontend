@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTeamsContext } from "../shared/hooks/useTeamsContext";
 import ConfigPage from "../pages/ConfigPage";
 import BoardPage from "../pages/BoardPage";
+import Loader from "../shared/components/Loader";
 
 import "./App.css";
 import AppLayout from "./layout/AppLayout.tsx";
@@ -15,7 +16,7 @@ export default function App() {
   if (isLoading || !context) {
     return (
       <div className="App">
-        <p>Loading...</p>
+        <Loader />
       </div>
     );
   }

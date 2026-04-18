@@ -8,6 +8,8 @@ import {
   sortColumns,
 } from "../helpers.ts";
 import { useSessionSummaryQuery } from "../hooks/useSessionSummary.ts";
+import Loader from "../../../shared/components/Loader";
+import Notification from "../../../shared/components/Notification";
 
 import styles from "./BoardSummary.module.css";
 import type { Session } from "../../../shared/lib/api-client.ts";
@@ -17,6 +19,9 @@ export interface BoardSummaryDesktopProps {
   onBack: () => void;
   onExitToHistory: () => void;
   onPublish: () => void;
+  onPublishNotificationClose: () => void;
+  publishNotification: null | { id: number; message: string; type: "error" | "success" };
+  publishPending: boolean;
   session: Session;
   sessionId: string;
 }
@@ -35,6 +40,9 @@ export default function BoardSummary({
   onBack,
   onExitToHistory,
   onPublish,
+  onPublishNotificationClose,
+  publishNotification,
+  publishPending,
   session,
   sessionId,
 }: BoardSummaryDesktopProps) {
@@ -62,7 +70,7 @@ export default function BoardSummary({
   if (isPending) {
     return (
       <div className={styles.boardShell}>
-        <div className={styles.loading}>Loading summary…</div>
+        <Loader />
       </div>
     );
   }
@@ -219,16 +227,30 @@ export default function BoardSummary({
               </div>
               <div className={styles.publishActions}>
                 <button className={`${styles.btn} ${styles.btnSubtle}`} type="button" onClick={onBack}>
-                  <i aria-hidden className="fas fa-arrow-left" /> Back to Board
+                  <i aria-hidden className="fas fa-arrow-left" /> Start new session
                 </button>
-                <button className={`${styles.btn} ${styles.btnSuccess}`} type="button" onClick={onPublish}>
-                  <i aria-hidden className="fab fa-microsoft" /> Publish to Channel
+                <button
+                  className={`${styles.btn} ${styles.btnSuccess}`}
+                  disabled={publishPending}
+                  type="button"
+                  onClick={onPublish}
+                >
+                  <i aria-hidden className="fab fa-microsoft" />{" "}
+                  {publishPending ? "Publishing..." : "Publish to Channel"}
                 </button>
               </div>
             </div>
           )}
         </div>
       </div>
+      {publishNotification && (
+        <Notification
+          key={publishNotification.id}
+          message={publishNotification.message}
+          type={publishNotification.type}
+          onClose={onPublishNotificationClose}
+        />
+      )}
     </div>
   );
 }
