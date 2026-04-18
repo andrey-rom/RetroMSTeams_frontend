@@ -153,6 +153,15 @@
   color: var(--colorNeutralForeground1);
 }
 
+.timerDisplayExpired {
+  background: rgba(244, 67, 54, 0.22);
+}
+
+.timerIconExpired,
+.timerValueExpired {
+  color: #ff6b6b;
+}
+
 .headerRight {
   display: flex;
   align-items: center;
@@ -279,6 +288,20 @@
   font-weight: 600;
   font-size: 0.9rem;
   flex-shrink: 0;
+  gap: 2em;
+}
+
+.graceDismissBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
 }
 
 .graceDoneLabel {

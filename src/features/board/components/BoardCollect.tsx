@@ -9,6 +9,7 @@ export interface BoardCollectDesktopProps {
   cards: Card[];
   collectTimerConfigured: boolean;
   collectTimerNotStarted: boolean;
+  collectTimerSeconds: null | number;
   columns: TemplateValue[];
   graceActive: boolean;
   graceBanner: boolean;
@@ -19,13 +20,18 @@ export interface BoardCollectDesktopProps {
   onBack: () => void;
   onCreateCard: (columnKey: string, content: string) => Promise<void>;
   onDeleteCard: (cardId: string) => Promise<void>;
+  onDismissGraceBanner: () => void;
   onGraceCardAdded: (columnKey: string) => void;
   onStartCollect: () => void;
+  onToggleTimerPause: () => void;
   onUpdateCard: (cardId: string, content: string) => Promise<void>;
+  pausedRemainingSeconds: null | number;
   sessionTitle: string;
   startCollectPending: boolean;
   templateCode: string;
+  timerExpired: boolean;
   timerExpiresAt: null | string;
+  timerPaused: boolean;
   waitingForModerator: boolean;
 }
 
@@ -61,6 +67,7 @@ export default function BoardCollect({
   cards,
   collectTimerConfigured,
   collectTimerNotStarted,
+  collectTimerSeconds,
   columns: columnsRaw,
   graceActive,
   graceBanner,
@@ -71,17 +78,35 @@ export default function BoardCollect({
   onBack,
   onCreateCard,
   onDeleteCard,
+  onDismissGraceBanner,
   onGraceCardAdded,
   onStartCollect,
+  onToggleTimerPause,
   onUpdateCard,
+  pausedRemainingSeconds,
   sessionTitle,
   startCollectPending,
   templateCode,
+  timerExpired,
   timerExpiresAt,
+  timerPaused,
   waitingForModerator,
 }: BoardCollectDesktopProps) {
   const columns = useMemo(() => sortColumns(columnsRaw), [columnsRaw]);
-  const timerText = useLiveTimerDisplay(timerExpiresAt);
+  const liveTimerText = useLiveTimerDisplay(timerExpiresAt);
+  const pausedTimerText = formatSecondsAsTimer(pausedRemainingSeconds);
+  let timerText = liveTimerText;
+
+  if (collectTimerNotStarted && collectTimerSeconds !== null) {
+    timerText = formatSecondsAsTimer(collectTimerSeconds);
+  }
+
+  if (timerPaused) {
+    timerText = pausedTimerText;
+  }
+  if (timerExpired) {
+    timerText = "00:00";
+  }
 
   const contributorCount = useMemo(() => new Set(cards.map((c) => c.ownerHash)).size, [cards]);
   const onlineLabel = Math.max(contributorCount, 1);
@@ -134,9 +159,12 @@ export default function BoardCollect({
             </div>
           </div>
 
-          <div className={styles.timerDisplay}>
-            <i aria-hidden className={`fas fa-clock ${styles.timerIcon}`} />
-            <span className={styles.timerValue}>{timerText}</span>
+          <div className={`${styles.timerDisplay} ${timerExpired ? styles.timerDisplayExpired : ""}`}>
+            <i
+              aria-hidden
+              className={`fas fa-clock ${styles.timerIcon} ${timerExpired ? styles.timerIconExpired : ""}`}
+            />
+            <span className={`${styles.timerValue} ${timerExpired ? styles.timerValueExpired : ""}`}>{timerText}</span>
           </div>
         </div>
 
@@ -171,12 +199,12 @@ export default function BoardCollect({
             ) : (
               <>
                 <button
-                  disabled
                   className={`${styles.btn} ${styles.btnSubtle} ${styles.modBtnTight}`}
-                  title="Pause is not available yet"
                   type="button"
+                  onClick={onToggleTimerPause}
                 >
-                  <i aria-hidden className="fas fa-pause" /> Pause Timer
+                  <i aria-hidden className={`fas ${timerPaused ? "fa-play" : "fa-pause"}`} />{" "}
+                  {timerPaused ? "Resume Timer" : "Pause Timer"}
                 </button>
                 <button
                   className={`${styles.btn} ${styles.btnPrimary} ${styles.modBtnTight}`}
@@ -200,6 +228,14 @@ export default function BoardCollect({
       {graceBanner && (
         <div className={styles.graceBanner}>
           <span>Time is up! You may add one last card per column.</span>
+          <button
+            aria-label="Dismiss timer warning"
+            className={styles.graceDismissBtn}
+            type="button"
+            onClick={onDismissGraceBanner}
+          >
+            <i aria-hidden className="fas fa-xmark" />
+          </button>
         </div>
       )}
 
@@ -463,4 +499,15 @@ function BoardCollectColumn({
       {graceActive && graceUsed && <p className={styles.graceDoneLabel}>Last card added</p>}
     </div>
   );
+}
+
+function formatSecondsAsTimer(seconds: null | number): string {
+  if (seconds === null) {
+    return "--:--";
+  }
+
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }

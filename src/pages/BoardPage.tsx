@@ -23,7 +23,11 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
   const [votedCardIds, setVotedCardIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState("");
   const [timerExpired, setTimerExpired] = useState(false);
+  const [voteTimerElapsed, setVoteTimerElapsed] = useState(false);
+  const [timerPaused, setTimerPaused] = useState(false);
+  const [pausedRemainingSeconds, setPausedRemainingSeconds] = useState<null | number>(null);
   const [graceActive, setGraceActive] = useState(false);
+  const [graceBannerVisible, setGraceBannerVisible] = useState(false);
   const [graceUsedColumns, setGraceUsedColumns] = useState<Set<string>>(new Set());
   const [startingCollect, setStartingCollect] = useState(false);
   const [advancingToVote, setAdvancingToVote] = useState(false);
@@ -49,6 +53,25 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
     });
   }, []);
 
+  const clearPausedTimerState = useCallback(() => {
+    setTimerPaused(false);
+    setPausedRemainingSeconds(null);
+  }, []);
+
+  const getRemainingSeconds = useCallback((expiresAt: null | string) => {
+    if (!expiresAt) {
+      return null;
+    }
+
+    const target = new Date(expiresAt).getTime();
+
+    if (Number.isNaN(target)) {
+      return null;
+    }
+
+    return Math.max(0, Math.round((target - Date.now()) / 1000));
+  }, []);
+
   const loadData = useCallback(async () => {
     try {
       const [s, c, v, g] = await Promise.all([
@@ -63,12 +86,14 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
       setVotedCardIds(new Set(v.cardIds));
       if (g.graceActive) {
         setGraceActive(true);
+        setGraceBannerVisible(true);
         setGraceUsedColumns(new Set(g.usedColumns));
       }
+      clearPausedTimerState();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load");
     }
-  }, [sessionId]);
+  }, [clearPausedTimerState, sessionId]);
 
   useEffect(() => {
     loadData();
@@ -100,12 +125,33 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
     };
 
     const handlePhaseChanged = (raw: unknown) => {
-      const { phase } = raw as { phase: string };
+      const { phase, timerExpiresAt } = raw as { phase: string; timerExpiresAt?: null | string };
 
-      setSession((prev) => (prev ? { ...prev, currentPhase: phase, timerExpiresAt: null } : prev));
+      setSession((prev) =>
+        prev
+          ? {
+              ...prev,
+              collectGraceAt: phase === "collect" ? prev.collectGraceAt : null,
+              currentPhase: phase,
+              timerExpiresAt: timerExpiresAt ?? prev.timerExpiresAt,
+            }
+          : prev,
+      );
       setTimerExpired(false);
+      setVoteTimerElapsed(false);
       setGraceActive(false);
+      setGraceBannerVisible(false);
       setGraceUsedColumns(new Set());
+      clearPausedTimerState();
+
+      // Some phase-change events do not include timer data.
+      // Sync from backend so Vote timer is always correct for all clients.
+      void api
+        .getSession(sessionId)
+        .then((latest) => {
+          setSession(latest);
+        })
+        .catch(() => {});
     };
 
     const handleVoteUpdated = (raw: unknown) => {
@@ -122,11 +168,19 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
 
       setSession((prev) => (prev ? { ...prev, timerExpiresAt } : prev));
       setTimerExpired(false);
+      setVoteTimerElapsed(false);
+      clearPausedTimerState();
     };
 
     const handleTimerExpired = () => {
+      if (timerPaused) {
+        return;
+      }
+
       setSession((prev) => (prev ? { ...prev, timerExpiresAt: null } : prev));
       setTimerExpired(true);
+      setVoteTimerElapsed(true);
+      clearPausedTimerState();
     };
 
     const handleCollectGrace = (raw: unknown) => {
@@ -134,7 +188,9 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
 
       setSession((prev) => (prev ? { ...prev, collectGraceAt, timerExpiresAt: null } : prev));
       setGraceActive(true);
+      setGraceBannerVisible(true);
       setGraceUsedColumns(new Set());
+      clearPausedTimerState();
     };
 
     on("card:created", handleCardCreated);
@@ -156,7 +212,7 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
       off("timer:expired");
       off("collect:grace");
     };
-  }, [on, off]);
+  }, [clearPausedTimerState, on, off, sessionId, timerPaused]);
 
   const handleStartCollect = async () => {
     if (startingCollect) {
@@ -193,6 +249,7 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
 
       setSession(updated);
       setTimerExpired(false);
+      setVoteTimerElapsed(false);
       setGraceActive(false);
       setGraceUsedColumns(new Set());
     } catch (err: unknown) {
@@ -234,6 +291,36 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
   };
 
   const handleDismissTimerExpired = () => setTimerExpired(false);
+  const handleDismissGraceBanner = () => setGraceBannerVisible(false);
+
+  const handleToggleTimerPause = () => {
+    if (!session) {
+      return;
+    }
+
+    if (timerPaused) {
+      if (pausedRemainingSeconds === null) {
+        return;
+      }
+
+      const resumedExpiresAt = new Date(Date.now() + pausedRemainingSeconds * 1000).toISOString();
+
+      setSession((prev) => (prev ? { ...prev, timerExpiresAt: resumedExpiresAt } : prev));
+      setTimerPaused(false);
+      setPausedRemainingSeconds(null);
+
+      return;
+    }
+
+    const remaining = getRemainingSeconds(session.timerExpiresAt);
+
+    if (remaining === null) {
+      return;
+    }
+
+    setTimerPaused(true);
+    setPausedRemainingSeconds(remaining);
+  };
 
   const onGraceCardAdded = (columnKey: string) => {
     setGraceUsedColumns((prev) => new Set(prev).add(columnKey));
@@ -277,27 +364,33 @@ export default function BoardPage({ onBack, onExitToHistory, sessionId }: BoardP
       advancingToVote={advancingToVote}
       cards={cards}
       graceActive={graceActive}
+      graceBannerVisible={graceBannerVisible}
       graceUsedColumns={graceUsedColumns}
       isModerator={isModerator}
       myOwnerHash={myOwnerHash}
       publishingSummary={publishingSummary}
       publishNotification={publishNotification}
+      pausedRemainingSeconds={pausedRemainingSeconds}
       session={session}
       sessionId={sessionId}
       startingCollect={startingCollect}
       timerExpired={timerExpired}
+      timerPaused={timerPaused}
       votedCardIds={votedCardIds}
+      voteTimerElapsed={voteTimerElapsed}
       onAdvanceToSummary={() => void handleAdvancePhase("summary")}
       onAdvanceToVote={() => void handleAdvancePhase("vote")}
       onBack={onBack}
       onCreateCard={handleCreateCard}
       onDeleteCard={handleDeleteCard}
+      onDismissGraceBanner={handleDismissGraceBanner}
       onDismissTimerExpired={handleDismissTimerExpired}
       onExitToHistory={onExitToHistory}
       onGraceCardAdded={onGraceCardAdded}
       onPublish={handlePublish}
       onPublishNotificationClose={() => setPublishNotification(null)}
       onStartCollect={handleStartCollect}
+      onToggleTimerPause={handleToggleTimerPause}
       onUpdateCard={handleUpdateCard}
       onVoteToggle={handleVoteToggle}
     />
