@@ -1,67 +1,155 @@
-# Overview of the Basic Tab template
+# RetroMSTeams Frontend
 
-This template showcases how Microsoft Teams supports the ability to run web-based UI inside "custom tabs" that users can install either for just themselves (personal tabs) or within a team or group chat context.
+Frontend for a Microsoft Teams tab application built with React + TypeScript + Vite and packaged/deployed with Microsoft 365 Agents Toolkit.
 
-## Get started with the Basic Tab template
+## Tech Stack
 
-> **Prerequisites**
->
-> To run the basic tab template in your local dev machine, you will need:
->
-> - [Node.js](https://nodejs.org/), supported versions: >=20.
-> - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
->   Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect.
-> - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 6.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
+- React 19
+- TypeScript
+- Vite
+- Microsoft Teams JavaScript SDK
+- Microsoft 365 Agents Toolkit (`m365agents.yml`)
 
-1. First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-2. In the Account section, sign in with your [Microsoft 365 account](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts) if you haven't already.
-3. Press F5 to start debugging which launches your app in Teams using a web browser. Select `Debug in Teams (Edge)` or `Debug in Teams (Chrome)`.
-4. When Teams launches in the browser, select the Add button in the dialog to install your app to Teams.
+## Prerequisites
 
-**Congratulations**! You are running an application that can now show a basic web page in Teams, Outlook and the Microsoft 365 app.
+Before you start, install and configure:
 
-![Basic Tab](https://github.com/user-attachments/assets/e8121c82-ddbc-493f-9afb-34db2a4b8e73)
+- [Node.js](https://nodejs.org/) 20+ (LTS recommended)
+- npm (comes with Node.js)
+- A Microsoft 365 developer tenant/account
+- Azure subscription (for cloud deployment)
+- One of:
+  - [Microsoft 365 Agents Toolkit extension](https://aka.ms/teams-toolkit) in VS Code, or
+  - [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
-## What's included in the template
+## Project Structure
 
-| Folder       | Contents                                     |
-| ------------ | -------------------------------------------- |
-| `.vscode`    | VSCode files for debugging                   |
-| `appPackage` | Templates for the application manifest |
-| `env`        | Environment files                            |
-| `infra`      | Templates for provisioning Azure resources   |
-| `src`        | The source code for the application    |
+- `src/` - frontend source code and server entrypoint
+- `appPackage/` - Teams app manifest and package assets
+- `env/` - environment files for local/dev/prod
+- `infra/` - Azure infrastructure templates (Bicep)
+- `m365agents.yml` - main provision/deploy/publish pipeline
+- `m365agents.local.yml` - local environment overrides
 
-The following files can be customized and demonstrate an example implementation to get you started.
+## Installation
 
-| File                             | Contents                                                                                                        |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `index.html`                     | HTML file.                                                                                                      |
-| `src/Tab/App.css`                | CSS file for the app.                                                                                           |
-| `src/Tab/App.tsx`                | Tab source file. It calls `teamsjs` SDK to get the context of on which Microsoft 365 application your app is running.      |
-| `src/index.ts`                   | Starting the app using [Microsoft Teams SDK](https://aka.ms/teams-ai-library-v2).                                                                     |
-| `vite.config.js`                 | Configuration for Vite build tool.                                                                              |  
-| `nodemon.json`                   | Configuration for Nodemon to watch and restart the server.                                                      |
+```bash
+npm install
+```
 
-The following are Microsoft 365 Agents Toolkit specific project files. You can [visit a complete guide on Github](https://github.com/OfficeDev/TeamsFx/wiki/Teams-Toolkit-Visual-Studio-Code-v5-Guide#overview) to understand how Microsoft 365 Agents Toolkit works.
+## Environment Configuration
 
-| File                 | Contents                                                                                                                                  |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `m365agents.yml`       | This is the main Microsoft 365 Agents Toolkit project file. The project file defines two primary things: Properties and configuration Stage definitions. |
-| `m365agents.local.yml` | This overrides `m365agents.yml` with actions that enable local execution and debugging.                                                     |
+The app reads backend URLs from Vite env variables:
 
-## Extend the Basic Tab template
+- `VITE_API_URL`
+- `VITE_SOCKET_URL`
 
-Following documentation will help you to extend the Basic Tab template.
+For local development, update `env/.env.local` (or `env/.env.dev`) values:
 
-- [Add or manage the environment](https://learn.microsoft.com/microsoftteams/platform/toolkit/teamsfx-multi-env)
-- [Create multi-capability app](https://learn.microsoft.com/microsoftteams/platform/toolkit/add-capability)
-- [Access data in Microsoft Graph](https://learn.microsoft.com/microsoftteams/platform/toolkit/teamsfx-sdk#microsoft-graph-scenarios)
-- [Use an existing Microsoft Entra application](https://learn.microsoft.com/microsoftteams/platform/toolkit/use-existing-aad-app)
-- [Customize the app manifest](https://learn.microsoft.com/microsoftteams/platform/toolkit/teamsfx-preview-and-customize-app-manifest)
-- Host your app in Azure by [provision cloud resources](https://learn.microsoft.com/microsoftteams/platform/toolkit/provision) and [deploy the code to cloud](https://learn.microsoft.com/microsoftteams/platform/toolkit/deploy)
-- [Collaborate on app development](https://learn.microsoft.com/microsoftteams/platform/toolkit/teamsfx-collaboration)
-- [Set up the CI/CD pipeline](https://learn.microsoft.com/microsoftteams/platform/toolkit/use-cicd-template)
-- [Publish the app to your organization or the Microsoft app store](https://learn.microsoft.com/microsoftteams/platform/toolkit/publish)
-- [Enable the app for multi-tenant](https://aka.ms/m365-agent-multi-tenancy-entra-app)
-- [Preview the app on mobile clients](https://aka.ms/teamsfx-mobile)
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_SOCKET_URL=http://localhost:3000
+```
+
+For production build/deployment, set values in `.env.production` (example in this repo):
+
+```env
+VITE_API_URL=https://your-backend/api
+VITE_SOCKET_URL=https://your-backend
+```
+
+## Run the Project Locally
+
+### Recommended: Run in Teams (Toolkit flow)
+
+1. Open the project in VS Code with Microsoft 365 Agents Toolkit.
+2. Sign in to Microsoft 365 (and Azure if prompted).
+3. Start debug (`F5`) with **Debug in Teams (Edge/Chrome)**.
+4. Toolkit provisions local settings, generates certs, and launches the app in Teams web.
+
+### CLI-based local flow (Toolkit)
+
+Use Microsoft 365 Agents Toolkit CLI to run the lifecycle for local environment:
+
+```bash
+teamsapp provision --env local
+teamsapp deploy --env local
+```
+
+Then run the app:
+
+```bash
+npm run dev
+```
+
+## Available npm Scripts
+
+- `npm run dev` - build and run the local server with `nodemon`
+- `npm run build` - build server and frontend into `dist/`
+- `npm run build:frontend` - build frontend assets only
+- `npm run test` - run tests once
+- `npm run test:watch` - run tests in watch mode
+- `npm run test:integration` - run integration tests
+- `npm run lint` - run ESLint
+- `npm run lint:fix` - run ESLint with auto-fixes
+- `npm run format` - format code with Prettier
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+Build output:
+
+- Server bundle: `dist/`
+- Frontend static assets: `dist/client/`
+
+## Deploy to Azure (Teams Toolkit Pipeline)
+
+This repo is configured to deploy via `m365agents.yml`.
+
+### 1. Provision cloud resources
+
+```bash
+teamsapp provision --env dev
+```
+
+What this does:
+
+- Creates/updates Teams app registration
+- Deploys Azure resources from `infra/azure.bicep`
+- Updates environment variables in `env/.env.dev`
+
+### 2. Deploy application code
+
+```bash
+teamsapp deploy --env dev
+```
+
+What this does:
+
+- Runs `npm install`
+- Runs `npm run build`
+- Deploys the app to Azure App Service (zip deploy)
+
+### 3. (Optional) Publish app package
+
+```bash
+teamsapp publish --env dev
+```
+
+This submits the generated app package to Teams Admin Center for review/approval.
+
+## Post-Deployment Checklist
+
+- Verify app URL and domain values in generated environment files (`TAB_ENDPOINT`, `TAB_DOMAIN`)
+- Ensure backend URLs (`VITE_API_URL`, `VITE_SOCKET_URL`) point to reachable production services
+- Install/update the app in Teams and test tab loading in personal/team scopes
+
+## Troubleshooting
+
+- **App does not load in Teams:** check `TAB_ENDPOINT` and `TAB_DOMAIN` in `env/.env.<env>`.
+- **HTTPS/certificate issues locally:** rerun local deploy/provision so Toolkit regenerates trusted certs.
+- **Frontend cannot reach backend:** verify `VITE_API_URL` and `VITE_SOCKET_URL` values for the active environment.
+- **Deployment fails in Azure step:** make sure you are logged into the correct Azure subscription and resource group.
