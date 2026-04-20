@@ -70,6 +70,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
     "test": "vitest run",
+    "test:integration": "vitest run -c vitest.integration.config.js",
     "test:watch": "vitest"
   }
 }
