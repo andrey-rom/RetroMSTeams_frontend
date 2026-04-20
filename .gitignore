@@ -1,0 +1,9 @@
+.idea
+dist
+node_modules
+.env
+.env.local
+.localConfigs
+package-lock.json
+TMP
+env
